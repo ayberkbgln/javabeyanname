@@ -1,0 +1,2626 @@
+var bdpp = Packages.tr.gov.ggm.vedop2.ebyn.bdp; var sifir = bdpp.Util.bd("0"); var yuz = bdpp.Util.bd("100"); var onsekiz = bdpp.Util.bd("18"); var xu = bdpp.XmlUtil; var xmlUtils = Packages.com.cs.util.XMLUtils; var KABULTARIHI = null; var ebc = Packages.tr.gov.ggm.vedop2.ebyn.bdp.EntityBag; var eb, ebbos; var ONE_PARAM_ARRAY = new Array(1); function getSistemTarihi() {
+    if (KABULTARIHI != null)
+        return KABULTARIHI;
+    var d = new java.util.Date();
+    var yil = 1900 + d.getYear();
+    var ay = 1 + d.getMonth();
+    var ayStr = ay < 10 ? "0" + ay : ay;
+    var gun = d.getDate() < 10 ? "0" + d.getDate() : d.getDate();
+    return yil + "" + ayStr + "" + gun;
+} function this_init(event) {
+    var c = colOran1.editor; //Tevkifat Uygulanmayan Oran kolonu
+    c.add("1");
+    c.add("8");
+    c.add("18");
+    var e = colOran.editor; //KTevkifat Uygulanan Oran kolonu
+    e.add("1");
+    e.add("8");
+    e.add("18");
+    var t = colTamTevKdvOran.editor; //KTevkifat Uygulanan Oran kolonu
+    t.add("1");
+    t.add("8");
+    t.add("18");
+    var d = colTevOran.editor; //KTevkifat Uygulanan Tevkifat Oran
+    d.add("2/10");
+    d.add("3/10");
+    d.add("4/10");
+    d.add("5/10");
+    d.add("7/10");
+    d.add("9/10");
+    var e = colOran2.editor;
+    e.add("1");
+    e.add("8");
+    e.add("18");
+    var e2 = colOranEk.editor;
+    e2.add("1");
+    e2.add("8");
+    e2.add("18");
+    var e3 = colTabiOran.editor;//ekler tam ve ktablo oran
+    e3.add("1");
+    e3.add("8");
+    e3.add("18");
+    var e4 = colKdvOran1.editor; // ekler istege bagli tam tevkifat tablo oran
+    e4.add("1");
+    e4.add("8");
+    e4.add("18");
+    var d2 = colTevOranEk.editor; //KTevkifat Uygulanan Tevkifat OranEk
+    d2.add("2/10");
+    d2.add("3/10");
+    d2.add("4/10");
+    d2.add("5/10");
+    d2.add("7/10");
+    d2.add("9/10");
+    eb = ebc.eb();
+    ebbos = ebc.eb();
+    //A1 : Tevkifat Uygulanmayan Toplam
+    eb.tcc(tblTevkifatUygulama, 2, "C0 * C1 / 100");
+    eb.tcs("TOP_TEV_UYGULAMA", tblTevkifatUygulama, 2);
+    eb.tcs("TOP_MAT_UYGULAMA", tblTevkifatUygulama, 0);
+    eb.e2f("A1", "TOP_TEV_UYGULAMA", ebTopTevUygulama);
+    //A2: Tevkifat Uygulanan vergi Toplam 
+    eb.tcc(tblTevkifatUygula, 4, "((C1*C2)*(payda(C3) - pay(C3)))/(100 * payda(C3))");
+    eb.tcs("TOP_TEV_UYGULA", tblTevkifatUygula, 4);
+    eb.tcs("TOP_MAT_UYGULA", tblTevkifatUygula, 1);
+    eb.e2f("A2", "TOP_TEV_UYGULA", ebTevUygula);
+    // yeni eklenen kismi tevkifat eki
+    eb.tcc(tblTevkifatUygulaEk, 9, "(C7*C8)/100");
+    eb.tcc(tblTevkifatUygulaEk, 11, "C9*(pay(C10))/(payda(C10))");
+    eb.tcs("TOP_EK_KISMI_TEVKIFAT_TUTAR", tblTevkifatUygulaEk, 7);
+    eb.tcs("TOP_EK_KISMI_TEVKIFAT_HESAPLANAN_KDV", tblTevkifatUygulaEk, 9);
+    eb.tcs("TOP_EK_KISMI_TEVKIFAT_TEVKIFAT_TUTARI", tblTevkifatUygulaEk, 11);
+    eb.e2f("TOP_EK_KISMI_TEVKIFAT_TUTAR", ebTopTutarEk);
+    eb.e2f("TOP_EK_KISMI_TEVKIFAT_HESAPLANAN_KDV", ebTopHesKDVEk);
+    eb.e2f("TOP_EK_KISMI_TEVKIFAT_TEVKIFAT_TUTARI", ebTopTevTutarEk);
+    // 35. version ekler istebatam tevkifat uygulamas
+    eb.tcc(tblTamTevkifatUygulaEk, 9, "(C7*C8)/100");
+    eb.tcs("TOP_EK_TAM_TEVKIFAT_TUTAR", tblTamTevkifatUygulaEk, 7);
+    eb.tcs("TOP_EK_TAM_TEVKIFAT_VERGI", tblTamTevkifatUygulaEk, 9);
+    eb.e2f("TOP_EK_TAM_TEVKIFAT_TUTAR", ebTopIslemEk);
+    eb.e2f("TOP_EK_TAM_TEVKIFAT_VERGI", ebTopVergiEk);
+    //diimatrah ve vergi toplam
+    eb.tcs("TOP_MAT_DIGER", tblDigerIslemler, 1);
+    eb.tcs("TOP_DIGER_ISLEMLER", tblDigerIslemler, 2);
+    eb.e2f("A26", "TOP_DIGER_ISLEMLER", ebDigerIslemler);
+    //istebatam tevkifat uygulanan i
+    eb.tcc(tblTamTevkifatUygulanan, 3, "(C1*C2)/100");
+    eb.tcs("TOP_TAM_TEV_UYGULA", tblTamTevkifatUygulanan, 3);
+    eb.tcs("TOP_TAM_MAT_UYGULA", tblTamTevkifatUygulanan, 1);
+    eb.e2f("A27", "TOP_TAM_TEV_UYGULA", ebTamTevkifatTop);
+    //A3: Toplam Matrah
+    eb.e2f("A3", "TOP_MAT_UYGULAMA + TOP_MAT_UYGULA + TOP_MAT_DIGER + TOP_TAM_MAT_UYGULA", ebTopMatrah);
+    //A4: Hesaplanan Katma DeVergisi
+    //A5: Ilave Edilecek KDV
+    //A6: Toplam KDV
+    eb.e2f("A4", "A1 + A2 + A26", ebHesaplananKDV);
+    eb.f2e(ebIlaveKDV, "A5");
+    eb.e2f("A6", "A4 + A5", ebToplamKDV);
+    //A7: Toplam
+    eb.tcs("INDIRIMLER_TOPLAMI", tblIndirimler, 1);
+    eb.e2f("A7", "INDIRIMLER_TOPLAMI ", ebIndirimlerTop);
+    eb.tcsf("BU_DONEM_INDIRILECEK_KDV108", tblIndirimler, 1, 0, "108");
+    eb.tcsf("BU_DONEM_INDIRILECEK_KDV109", tblIndirimler, 1, 0, "109");
+    eb.tcsf("BU_DONEM_INDIRILECEK_KDV110", tblIndirimler, 1, 0, "110");
+    eb.tcs("TOP_OD_KDVTUTARI", tblOranDagilim, 2);
+    eb.e2f("OD_KDVTUTARI_TOPLAM", "TOP_OD_KDVTUTARI", ebOranDagilimToplam);
+    //A8: Tecil Edilebilir KDV
+    eb.tcc(tblIhrac, 3, "(C1 * C2)/100");
+    eb.e("TOP_IHRAC_VERGI", "0");
+    eb.e2f("A8", "0", ebTecilEdbrKDV);
+    // KaydTeslim Toplam
+    eb.tcs("IHRACKAYTESLIM_TOPLAMI", tblIhrac, 1);
+    eb.e2f("A23", "IHRACKAYTESLIM_TOPLAMI", ebIhracKaydTeslimBedeli);
+    //Bu kisim yuklenilenFarkHesapla() metodunda yeniden duzenlendi (ver.15)
+    //eb.tcs("TOP_IHRAC_YUKLENILEN",tblIhrac,4);
+    //eb.tcs("TOP_IHRAC_HESAPLANAN",tblIhrac,3);
+    //eb.e2f("INDIRIM_FARK","max (TOP_IHRAC_YUKLENILEN - TOP_IHRAC_HESAPLANAN, 0)",ebIndirimFark);
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    //GerDEdilecek KDV hesab
+    eb.f2e(ebKDVsizlerIcinOdenmeyenKDV, "KDVSIZ_ICIN_ODENMEYEN");
+    /////////////////////////////////////////////////////////////////////////////////////////////////////
+    //A9 : KKapsamGiren Teslim ve Hizmet Bedelleri Toplam
+    eb.tcs("TOP_KIS_HIZ", tblKismiIstisna, 1);
+    eb.e2f("A9", "TOP_KIS_HIZ ", ebTopKismiHizmet);
+    // A10: KKapsamGiren YKDV Toplam
+    eb.tcs("TOP_YUK_KDV", tblKismiIstisna, 2);
+    eb.e2f("A10", "TOP_YUK_KDV", ebTopKismiYukKDV);
+    //A11: Tam KapsamGiren Hizmet Bedelleri Toplam
+    eb.tcs("TOP_TAM_HIZ", tblTamIstisna, 1);
+    eb.e2f("A11", "TOP_TAM_HIZ", ebTopTamHizmet);
+    //A12 : Tam KapsamGiren YKDV Toplam
+    eb.tcs("TOP_TAM_YUK", tblTamIstisna, 3);
+    eb.e2f("A12", "TOP_TAM_YUK", ebTopTamYukKDV);// version 35 ile eklendi.
+    //A24 : istebatam tevkifat kapsamgiren iHizmet Bedelleri Toplam
+    eb.tcs("TOP_IST_TAM_HIZ", tblIstegeBagliTamTevkifat, 1);
+    eb.e2f("A24", "TOP_IST_TAM_HIZ", ebTopTeslimHizmet);
+    //A25 : Tam KapsamGiren Mal Bedeli Toplam
+    eb.tcs("TOP_TAM_MAL_BEDELI", tblTamIstisna, 2);
+    eb.e2f("A25", "TOP_TAM_MAL_BEDELI", ebTopTamMalBedeli);
+    //A28: istebatam tevkifat kapsamgiren iY Toplam
+    eb.tcs("TOP_IST_TAM_YUK", tblIstegeBagliTamTevkifat, 2);
+    eb.e2f("A28", "TOP_IST_TAM_YUK", ebTopIadeKonuKDV);// version 35 ile eklendi.
+    //A13 : DiKapsamGiren Hizmet Bedelleri Toplam
+    eb.tcs("TOP_DIG_HIZ", tblDigerIstisna, 1);
+    eb.e2f("A13", "TOP_DIG_HIZ", ebTopDigerHizmet);
+    //A14: DiKapsamGiren YToplam
+    eb.tcs("TOP_DIG_YUK", tblDigerIstisna, 2);
+    eb.e2f("A14", "TOP_DIG_YUK", ebTopDigerYukKDV);
+    //A15: KapsamAit Toplam Teslim ve Hizmet Tutar
+    eb.e2f("A15", "A9 + A11", ebIstisnaKapsami);
+    //A16: Toplam Iade Edilebilir KDV
+    eb.e2f("A16", "A12 + A14 + A28", ebIadeEdilebilir);
+    //A17: Matrah Tabi Matraha Dahil Olmayan Bedel
+    eb.f2e(ebMatDahilOlmayan, "A17");
+    //A18: Teslim ve Hizmetlerin KarTeEden Bedel TutarHesaplamas
+    eb.e2f("A18", "A3 + A15 + A17", ebBedelTutari);
+    //A19: Tecil Edilecek KDV
+    eb.e2f("A19", "(A6 - A7) < 0 ? 0 : min((A6 - A7), A8)", ebTecilEdckKDV);//A6: Toplam KDV
+    //A7: Toplam//A8: Tecil Edilebilir KDV
+    //A20 : Gereken KDV
+    eb.e2f("A20", "A6 - A7 < 0 ? 0 : max(A6 - A7 - A19, 0)", ebOdenGerekKDV)
+    //A21: Edilmesi Gereken KDV
+    eb.e2f("A21", "(A7-A6) < 0 ? 0 : min(A7 - A6, A16)", ebIadeKDV);
+    //A22: Sonraki DDevreden Katma DeVergisi
+    //eb.e2f("A22","(A7-A6) < 0 ? 0 : max((A7 - A6 - A21), 0)",ebDevredenKDV);
+    //A7: Toplam
+    //A6: Toplam KDV
+    //A22: Sonraki DDevreden Katma DeVergisi
+    //eb.e2f("","(A7-A6) < 0 ? 0 : max((A7 - A6 - A21), 0)",ebDevredenKDV);
+    //A7: Toplam
+    //A6: Toplam KDV
+    // Ekler KulakHesaplamalar
+    //IHR_DON_TECIL_EDILEMEYEN :ve KaydTeslimler Kulakyer alan
+    //GerDEdilecek Tecil Edilemeyen KDV
+    eb.e2f("IHR_DON_TECIL_EDILEMEYEN", "max(A8 - A19,0)", ebGerceklesmeyenTecilEdilemeyen);//A8: ebTecilEdbrKDV //A19: ebTecilEdckKDV
+    eb.e2f("IHR_DON_IADE_KDV", "0", ebIhrDonemIadeKDV);
+    eb.tcc(tblTurkHavaKuvvetleri, 2, "C0 * C1");
+    // yenilenmicep tel
+    eb.tcc(tblYenilenmisCepTel, 18, "(C17*0.01)");
+    eb.tcsf("IKDI_402_409", tblDigerIstisna, 1, 0, "409");
+    eb.tcsf("IKDI_402_410", tblDigerIstisna, 1, 0, "410");
+    eb.tcsf("IKDI_402_411", tblDigerIstisna, 1, 0, "411");
+    eb.tcsf("IKDI_402_412", tblDigerIstisna, 1, 0, "412");
+    eb.tcsf("IKDI_402_413", tblDigerIstisna, 1, 0, "413");
+    eb.tcsf("IKDI_402_414", tblDigerIstisna, 1, 0, "414");
+    eb.tcsf("IKDI_402_415", tblDigerIstisna, 1, 0, "415");
+    eb.tcsf("IKDI_402_416", tblDigerIstisna, 1, 0, "416");
+    eb.tcsf("IKDI_402_417", tblDigerIstisna, 1, 0, "417");
+    eb.tcsf("IKDI_402_418", tblDigerIstisna, 1, 0, "418");
+    eb.tcsf("IKDI_402_419", tblDigerIstisna, 1, 0, "419");
+    eb.tcsf("IKDI_402_420", tblDigerIstisna, 1, 0, "420");
+    eb.tcsf("IKDI_402_421", tblDigerIstisna, 1, 0, "421");
+    eb.tcsf("IKDI_402_422", tblDigerIstisna, 1, 0, "422");
+    eb.tcsf("IKDI_402_423", tblDigerIstisna, 1, 0, "423");
+    eb.tcsf("IKDI_402_424", tblDigerIstisna, 1, 0, "424");
+    eb.tcsf("IKDI_402_428", tblDigerIstisna, 1, 0, "428");
+    eb.tcsf("IKDI_402_429", tblDigerIstisna, 1, 0, "429");
+    eb.tcsf("IKDI_402_430", tblDigerIstisna, 1, 0, "430");
+    eb.tcsf("IKDI_402_431", tblDigerIstisna, 1, 0, "431");
+    eb.e("IKDI_402", "IKDI_402_409 + IKDI_402_410 + IKDI_402_411 + IKDI_402_412 + IKDI_402_413 + " +
+        "IKDI_402_414 + IKDI_402_415 + IKDI_402_416 + IKDI_402_417 + IKDI_402_418 + " +
+        "IKDI_402_419 + IKDI_402_420 + IKDI_402_421 + IKDI_402_422 + IKDI_402_423 + " +
+        "IKDI_402_424 + IKDI_402_428 + IKDI_402_429 + IKDI_402_430 + IKDI_402_431");
+    initIdariBilgiler();
+    // kontrolleri ekle
+    eb.bc(beanIdariBilgiler);
+    eb.bc(beanKimlikBilgileri);
+    eb.fc(this, "kontrolMatrah");
+    eb.fc(this, "kontrolTblTevkifatUygula"); // 11. versiyondan itibaren yeni eklenen kontrol methodu
+    eb.fc(this, "kontrolTblTevkifatUygulaEk"); // 11. versiyondan itibaren yeni eklenen kontrol methodu
+    eb.fc(this, "kontroltblTamTevkifatUygulaEk"); // 35. versiyondan itibaren yeni eklenen kontrol methodu
+    eb.fc(this, "kontrolTblTevkifatUygulaTblTevkifatUygulaEkCross"); // 11. versiyondan itibaren yeni eklenen kontrol methodu
+    eb.fc(this, "kontrolEkMatrahIslemTuru"); // 35. versiyondan itibaren yeni eklenen kontrol methodu
+    eb.fc(this, "kontrolDigerIslemler");
+    eb.fc(this, "kontrolIndirimler");
+    eb.fc(this, "kontrolTblIhrac");
+    eb.fc(this, "kontrolTblKismiIstisna");
+    eb.fc(this, "kontrolTblIstegeBagliIstisna");
+    eb.fc(this, "kontrolTblTamIstisna");
+    eb.fc(this, "kontrolTblDigerIstisna");
+    eb.fc(this, "kontrolSonucHesaplari");//
+    eb.fc(this, "odenmesiGerekenIadeSifirdanFarkli");
+    eb.bc(beanHSVBilgileri);
+    eb.fc(this, "kontrolMukellefHSV");
+    eb.bc(beanDuzenleyenBilgileri);
+    eb.fc(this, "kontrol18denBuyukOranlarIcinUyari");
+    eb.fc(this, "kontrol402_405_confirm");
+    eb.fc(this, "kontrolEkYukleniciFirma");
+    eb.fc(this, "kontrolTurkHavaKuvvetleri");
+    eb.fc(this, "kontrolTblTeknolojiGelistirmeBolgeleri");
+    /* TeYatMallareki 
+    eb.fc(this, "kontrolTblTesvikYatirimMallari");
+    */
+    eb.fc(this, "kontrolTblMakinaTechizatAl")
+    eb.fc(this, "kontrolTbl3065Istisna");
+    eb.fc(this, "kontrolTblDegersizBildirim");
+    eb.fc(this, "kontrolTblInd107Donem");
+    eb.fc(this, "kontrolTblTevkifatUygulaTblDigerIstisnaCross");
+    //eb.fc(this, "kontrolIndirimFark");
+    eb.fc(this, "kontrolOdenmeyenKdv");
+    eb.fc(this, "kontrolIndirimNeden");
+    eb.fc(this, "kontrolTblTamKismiIstisna");
+    eb.fc(this, "kontrolTblYenilenmisCepTel");
+    //eb.fc(this, "kontrolTblBelgeBilgileri");
+    // kontrol18denBuyukOranlarIcinUyari kontrolunun
+    // duzenleyen bilgilerinden bile sonra, en sonra olmasinin soyle bir avantaji var:
+    // kismi istisnada yuzde 18 den buyuk bir vergi yazdi diyelim.
+    // tam istisna tablosunda ve diger istisna tablosunda da hata var.
+    // ilk kaydetmede uyari verildi, sonra tam istisna tablosu hatasi verildi,
+    // kullanici hatayi duzeltti kaydete basti, uyari verildi, sonra diger istisna hatasi verildi,
+    // kullanici hatayi duzeltti kaydete basti, uyari verildi, sonra baska hatalar verildi.
+    // tum hatalar giderilinceye kadar her kaydetmede uyari verilecek, bu istenmeyen bir durum
+    // bu nedenle tum kontrollerden gectikten sonra uyari verilirse daha mantikli olur.
+    ebbos.bc(beanIdariBilgiler);
+    ebbos.bc(beanKimlikBilgileri);
+    ebbos.bc(beanHSVBilgileri);
+    ebbos.fc(this, "kontrolMukellefHSV");
+    ebbos.bc(beanDuzenleyenBilgileri);
+    // lookupdialog baayarlayal
+    colIndirimTuru.setLookupDialogTitle("LTSe")
+    colKod.setLookupDialogTitle("LTSe")
+    colTamIslemTuru.setLookupDialogTitle("LTSe")
+    colDIslemTuru.setLookupDialogTitle("LTSe")
+    colIndirimNedenTur.setLookupDialogTitle("LNedeni'ni Se")
+    colIstisnaTuru.setLookupDialogTitle("LTSe")
+    //20 ile eklendi ba
+    var ll;
+    ll = colBelgeTuru.getLookupList();
+    for (i = 0; i < ll.getCount(); i++) {
+        tblBelgeBilgileri.addRow();
+        tblBelgeBilgileri.setData(i, 0, ll.get(i));
+        tblBelgeBilgileri.setData(i, 1, "0");
+    }
+    eb.tcs("TOP_BELGE_SAY", tblBelgeBilgileri, 1); eb.e2f("TOP_BELGE_SAY1", "TOP_BELGE_SAY", ebTopBelgeSayisi);
+    //20 ile eklendi bitir}////////////////////////KONTROLLER///////////////////////////////function kontrolIndirimNeden(parent) 
+    {
+        if (tblIndirimNeden.rowCount > 0) {
+            if (!eb.terc(tblIndirimNeden, "DAit Miktarda DeVarsa Bu Tablo Doldurulacakt", 0, parent, null))
+                return false;
+        }
+        return true;
+    } function kontrolTurkHavaKuvvetleri(parent) {
+        if (tblTurkHavaKuvvetleri.rowCount > 0) {
+            if (!eb.terc(tblTurkHavaKuvvetleri, "THava Kuvvetlerinin GKatPayBildirimi", 0, parent, null))
+                return false;
+        }
+        return true;
+    } function kontrolEkYukleniciFirma(parent) {
+        var turkodu, found;
+        for (i = 0; i < tblTamIstisna.rowCount; i++) {
+            turkodu = tblTamIstisna.getData(i, 0);
+            if (turkodu.get("kod") == "310")
+                found = true;
+        }
+        if (found && tblYukleniciFirma.rowCount == 0) {
+            if (!parent.confirm("310 No.lu satbeyan edilen i112 Seri No.lu KDV Genel Teblinin 2.2.2 No.lu bkapsamyapteslim ve hizmetlerle ilgili oldutakdirde &Ek-5' in doldurulmasgerekmektedir. Devam etmek istediemin misiniz?")) {
+                tblYukleniciFirma.focus();
+                tblYukleniciFirma.selectedColumn = 0;
+                return false;
+            }
+        }
+        if (!found && tblYukleniciFirma.rowCount > 0) {
+            parent.msgBox("KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Liste Eki doldurulmu&" +
+                "Tam KapsamGiren tablosuna Ulusal GAmateslim ve hizmetler bilgisi girilmelidir.")
+            tblTamIstisna.focus();
+            return false;
+        }
+        var i;
+        var kontrolTarih = "01012009";
+        for (i = 0; i < tblYukleniciFirma.rowCount; i++) {
+            if (!eb.terc(tblYukleniciFirma, "KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Liste", i, parent, null))
+                return false;
+            var verilenTarih = tblYukleniciFirma.getData(i, 1);
+            if (!bdpp.Util.isDateValid(verilenTarih)) {
+                var msg = "KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Listenin  " + (i + 1);
+                msg += ". satgirdiUlusal Gvenlik TarafVerilen Belgesinin Tarihi bilgisi & gebir tarih de";
+                parent.msgBox(msg);
+                tblYukleniciFirma.focus();
+                tblYukleniciFirma.selectedRow = i;
+                tblYukleniciFirma.selectedColumn = 1;
+                return false;
+            }
+            if (bdpp.Util.isDateBefore(verilenTarih, kontrolTarih)) {
+                parent.msgBox("KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Listenin   " + (i + 1) + ". satUlusal GTarafVerilen Belgesinin Tarihi bilgisi 01.01.2009 tarihinden olamaz.");
+                tblYukleniciFirma.selectedRow = i;
+                tblYukleniciFirma.selectedColumn = 1;
+                tblYukleniciFirma.focus();
+                return false;
+            }
+            var onaylananTarih = tblYukleniciFirma.getData(i, 3);
+            if (!bdpp.Util.isDateValid(onaylananTarih)) {
+                var msg = "KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Listenin  " + (i + 1);
+                msg += ". satgirdiUlusal GTarafOnaylanan Listenin Tarihi bilgisi & gebir tarih de"
+                parent.msgBox(msg);
+                tblYukleniciFirma.focus();
+                tblYukleniciFirma.selectedRow = i;
+                tblYukleniciFirma.selectedColumn = 3;
+                return false;
+            }
+            if (bdpp.Util.isDateBefore(onaylananTarih, kontrolTarih)) {
+                parent.msgBox("KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Listenin   " + (i + 1) + ". satUlusal GTarafOnaylanan Listenin  Tarihi bilgisi 01.01.2009 tarihinden olamaz.");
+                tblYukleniciFirma.selectedRow = i;
+                tblYukleniciFirma.selectedColumn = 3;
+                tblYukleniciFirma.focus();
+                return false;
+            }
+            var faturaTarihi = tblYukleniciFirma.getData(i, 11);
+            if (!bdpp.Util.isDateValid(faturaTarihi)) {
+                var msg = "KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Listenin  " + (i + 1);
+                msg += ". satgirdiFatura Tarihi bilgisi & gebir tarih de"
+                parent.msgBox(msg);
+                tblYukleniciFirma.focus();
+                tblYukleniciFirma.selectedRow = i;
+                tblYukleniciFirma.selectedColumn = 11;
+                return false;
+            }
+            if (bdpp.Util.isDateBefore(onaylananTarih, kontrolTarih)) {
+                parent.msgBox("KDV Kanunun 13/f Maddesi KapsamYFirmalara YapTeslim ve Hizmetlere Ait Listenin   " + (i + 1) + ". satUlusal GTarafOnaylanan Listenin  Tarihi bilgisi 01.01.2009 tarihinden olamaz.");
+                tblYukleniciFirma.selectedRow = i;
+                tblYukleniciFirma.selectedColumn = 11;
+                tblYukleniciFirma.focus();
+                return false;
+            }
+        } return true;
+    } function kontrolMatrah(parent) {
+        //Beyanyok kutucuiTevkifat Uygulanmayan KTevkifat Uygulanan r,
+        //tablolarenaz birinde enaz bir satbulunmal
+        if (!eb.tec(tblTevkifatUygulama, "Tevkifat Uygulanmayan", false, parent, null, new Array("1")))
+            return false;
+        if (!eb.tec(tblTamTevkifatUygulanan, "BaTam Tevkifat Uygulanan", false, parent, null, new Array("0")))
+            return false;
+        if (!eb.tec(tblTevkifatUygula, "KTevkifat Uygulanan", false, parent, null, new Array("0, 2, 3")))
+            return false;
+        /*if (!eb.tec(tblDigerIslemler, "Difalse, parent, null,new Array("0")))
+        
+        
+        return false;
+        */
+        if (!eb.tec(tblIndirimler, false, parent, null, new Array("0")))
+            return false; var found501 = false; var found504 = false;    //var found503 = false;
+        var found550 = false;
+        for (i = 0; i < tblDigerIslemler.rowCount; i++) {
+            var islemTuru = tblDigerIslemler.getData(i, 0).get("kod");
+            if (!islemTuru.equals("")) {
+                if (islemTuru.equals("501")) {
+                    if (found501 == true) {
+                        parent.msgBox("Ditablosunda aynitbilgisi birden fazla satgirilemez.");
+                        return false;
+                    }
+                    else {
+                        found501 = true;
+                    }
+                }
+                else if (islemTuru.equals("504")) {
+                    if (found504 == true) {
+                        parent.msgBox("Ditablosunda aynitbilgisi birden fazla satgirilemez.");
+                        return false;
+                    }
+                    else {
+                        found504 = true;
+                    }
+                }
+                else if (islemTuru.equals("550")) {
+                    if (found550 == true) {
+                        parent.msgBox("Ditablosunda aynitbilgisi birden fazla satgirilemez.");
+                        return false;
+                    }
+                    else {
+                        found550 = true;
+                    }
+                }
+            }
+        }
+        if ((tblTevkifatUygula.rowCount + tblTevkifatUygulama.rowCount + tblIndirimler.rowCount + tblDigerIslemler.rowCount) == 0) {
+            parent.msgBox("Tevkifat Uygulanmayan KTevkifat Uygulanan DiBaTam Tevkifat Uygulanan veya tablolaren az biri dolu olmal")
+            TabPanel1.selectedIndex = 1;
+            return false;
+        }
+        if (tblIhrac.rowCount > 0 && tblTevkifatUygulama.rowCount == 0) {
+            parent.msgBox("'KaydTeslimlere Ait Bildirim' tablosuna bilgi girildiyse 'Matrah' b'Tevkifat Uygulanmayan tablosu da doldurulmal")
+            tblTevkifatUygulama.focus();
+            return false;
+        }
+        if (tblIstegeBagliTamTevkifat.rowCount > 0 && tblTamTevkifatUygulanan.rowCount == 0) {
+            parent.msgBox("'HakkDokulak'BaTam Tevkifat KapsamGiren tablosuna bilgi girildi'Matrah' kulak'BaTam Tevkifat Uygulanan tablosuna da bilgi girilmelidir.");
+            tblTamTevkifatUygulanan.focus();
+            return false;
+        }
+        for (var i = 0; i < tblTevkifatUygulama.rowCount; i++) {
+            for (var k = 0; k < tblIhrac.rowCount; k++) {
+                var ihracOran = bdpp.Util.bd(tblIhrac.getData(k, 2));
+                var toplamMatrah = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblTevkifatUygulama, 0, 1, ihracOran));
+                var toplamIhrac = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIhrac, 1, 2, ihracOran));
+                if (toplamMatrah.compareTo(toplamIhrac) < 0 && toplamIhrac.compareTo(bdpp.Util.bd("0")) != 0) {
+                    parent.msgBox("'KaydTeslimlere Ait Bildirim' tablosunda yer alan her 'Oran' i'Teslim Bedeli' tutar'Matrah' b'Tevkifat Uygulanmayan tablosunda ilgili 'KDV Oraniyer alan 'Matrah' tutareveya kolmal")
+                    tblIhrac.focus();
+                    return false;
+                }
+            }
+        }
+        return true;
+    } function kontrolDigerIslemler(parent) {
+        /*if (!eb.tec(tblDigerIslemler, "Difalse, parent, null, new Array("0")))       return false;*/
+        var i;
+        for (i = 0; i < tblDigerIslemler.rowCount; i++) {
+            var matrah = bdpp.Util.bd(tblDigerIslemler.getData(i, 1));
+            var vergi = bdpp.Util.bd(tblDigerIslemler.getData(i, 2));
+            if (vergi.compareTo(matrah) > 0) {
+                var msg = "Ditablosunda Vergi, Matrahtan bolamaz.";
+                parent.msgBox(msg);
+                tblDigerIslemler.focus();
+                tblDigerIslemler.selectedRow = i;
+                tblDigerIslemler.selectedColumn = 2;
+                return false;
+            }
+        }//forreturn true;}function kontrolTblIhrac(parent)
+        {
+            var i = 0;
+            var hepsiKDV18mi = true;
+            for (i = 0; i < tblIhrac.rowCount; i++) {
+                if (!eb.terc(tblIhrac, "KaydTeslimlere Ait Bildirim", i, parent, null))
+                    return false;
+                if (tblIhrac.getData(i, 2) != "" && tblIhrac.getData(i, 2) != "18") {
+                    hepsiKDV18mi = false;
+                }
+                if (!eb.tsvc(tblIhrac, "KaydTeslimlere Ait Bildirim", i, new Array("0,2"), parent))
+                    return false;
+            }
+            //var yuklenilen = bdpp.Util.bd(tblIhrac.getData(i, 4));
+            //var teslimHizmet = bdpp.Util.bd(tblIhrac.getData(i, 1));
+            var teslimHizmet = bdpp.Util.bd("0");
+            var yuklenilen = bdpp.Util.bd(ebYuklenilenKDV.text);
+            for (var j = 0; j < tblIhrac.rowCount; j++) {
+                teslimHizmet = teslimHizmet.add(bdpp.Util.bd(tblIhrac.getData(j, 1)));
+            }
+            if (yuklenilen.compareTo(teslimHizmet) > 0) {
+                var msg = "KaydTeslimler kulakYKDV,  Teslim ve Hizmet Bedelinden bolamaz.";
+                parent.msgBox(msg);
+                tblIhrac.focus();
+                //tblIhrac.selectedRow = i;
+                //tblIhrac.selectedColumn = 4;
+                return false;
+            }
+            if (hepsiKDV18mi) {
+                var yuklenilen = bdpp.Util.bd(ebYuklenilenKDV.text);
+                if (yuklenilen.compareTo(bdpp.Util.bd("0")) != 0) {
+                    var msg = "KaydTeslimlere Ait Bildirim Tablosunda tsatOran %18 ise " + "YKDV de0 olmal"
+                    parent.msgBox(msg);
+                    ebYuklenilenKDV.focus();
+                    return false;
+                }
+            }
+            return true;
+        } function cross402_DigerIade_KismiTevkifat(parent, islemTuru402, i) {
+            if (islemTuru402.get("kod") >= "409" && islemTuru402.get("kod") <= "424")
+            // 402 nin alt k
+            {
+                var j = 0;
+                var toplamVergi = null;
+                var toplamMatrah = null;
+                for (j = 0; j < tblTevkifatUygula.rowCount; j++) {
+                    if (toplamMatrah == null)
+                        toplamMatrah = bdpp.Util.bd(tblTevkifatUygula.getData(j, 1));
+                    else
+                        toplamMatrah = toplamMatrah.add(bdpp.Util.bd(tblTevkifatUygula.getData(j, 1)));
+                }//for
+                if (!(bdpp.Util.bd(eb.get("IKDI_402").value).compareTo(toplamMatrah) == 0)) {
+                    var mesagge;
+                    mesagge = "DiHakkDotablosuna girdi9/1 KDVK Md No'lu Tevkif Edilen KDV bilgileri &";
+                    mesagge += "Teslim ve Hizmet TutaralanlartoplamKTevkifat Uygulanan tablosunda &";
+                    mesagge += "yer alan satMatrah alanlartoplameolmal"
+                    if (!parent.confirm(mesagge +
+                        "&Devam etmek istediemin misiniz?")) {
+                        tblDigerIstisna.focus();
+                        tblDigerIstisna.selectedRow = i;
+                        tblDigerIstisna.selectedColumn = 1;
+                        return false;
+                    }
+                }//if
+            }// if
+            return true;
+        } function crossDigerIade(parent, tablo1, tablo2, kod, oran1, oran2) {
+            var j = 0;
+            var k = 0;
+            var islem;
+            var sign = false;
+            for (j = 0; j < tablo1.rowCount; j++) {
+                if (tablo1.getData(j, 1) == oran1 || (oran2 != null && tablo1.getData(j, 1) == oran2)) {
+                    for (k = 0; k < tablo2.rowCount; k++) {
+                        islem = tablo2.getData(k, 0);
+                        if (islem.get("kod") == kod) {
+                            sign = true;
+                            break;
+                        }
+                    }//for
+                    if (!sign)
+                        return false;
+                }//if
+            }//for
+            return true;
+        } function kontrolTblIstegeBagliIstisna(parent) {
+            var i;
+            if (!eb.tec(tblIstegeBagliTamTevkifat, "BaTam Tevkifat KapsamGiren", false, parent, null, new Array("0")))
+                return false;
+            for (i = 0; i < tblIstegeBagliTamTevkifat.rowCount; i++) {
+                var teslimHizmet = bdpp.Util.bd(tblIstegeBagliTamTevkifat.getData(i, 1));
+                var iadeKonuOlanKDV = bdpp.Util.bd(tblIstegeBagliTamTevkifat.getData(i, 2));
+                if (iadeKonuOlanKDV.compareTo(teslimHizmet) > 0) {
+                    var msg = "BaTam Tevkifat KapsamGiren tablosunda Konu Olan KDV Teslim ve Hizmet Tutarbolamaz.";
+                    msg += " & BaTam Tevkifat KapsamGiren tablosu'nun " + (i + 1) + ". satyer alan bilginizi kontrol ediniz.";
+                    parent.msgBox(msg);
+                    tblIstegeBagliTamTevkifat.focus();
+                    tblIstegeBagliTamTevkifat.selectedRow = i;
+                    tblIstegeBagliTamTevkifat.selectedColumn = 2;
+                    return false;
+                }
+            }//for
+            return true;
+        } function kontrolTblKismiIstisna(parent) {
+            var i;
+            var teknolojiBolgeIslemKodu = "223";
+            if (!eb.tec(tblKismiIstisna, "KKapsamGiren", false, parent, null, new Array("0")))
+                return false;
+            for (i = 0; i < tblKismiIstisna.rowCount; i++) {
+                var teslimHizmet = bdpp.Util.bd(tblKismiIstisna.getData(i, 1));
+                var yuklenilenKDV = bdpp.Util.bd(tblKismiIstisna.getData(i, 2));
+                var kod = tblKismiIstisna.getData(i, 0).get("kod");
+                if (yuklenilenKDV.compareTo(teslimHizmet) > 0) {
+                    var msg = "KKapsamGiren tablosunda YKDV  Teslim ve Hizmet Tutarbolamaz .";
+                    msg += " & KKapsamGiren tablosu'nun " + (i + 1) + ". satyer alan bilginizi kontrol ediniz.";
+                    parent.msgBox(msg);
+                    tblKismiIstisna.focus();
+                    tblKismiIstisna.selectedRow = i;
+                    tblKismiIstisna.selectedColumn = 2;
+                    return false;
+                }
+                if (kod.equals(teknolojiBolgeIslemKodu)) {
+                    if (tblTeknolojiGelistirmeBolgeleri.rowCount == 0) {
+                        if (!parent.confirm("KKapsamGiren tablosunda Tolarak " + teknolojiBolgeIslemKodu + " kodlu Teknoloji gelibyapikaydgirilmiise&"
+                            + "Teknoloji GeliBeki de doldurulmalDevam etmek istediemin misiniz?")) {
+                            tblTeknolojiGelistirmeBolgeleri.focus();
+                            return false;
+                        }
+                    }
+                }
+            }//for
+            return true;
+        } function kontrolTblTamIstisna(parent) {
+            var tesvikliYatirim = "308";
+            for (i = 0; i < tblTamIstisna.rowCount; i++) {
+                if (!eb.terc(tblTamIstisna, "Tam KapsamGiren", parent, new Array("2")))
+                    return false;
+                if (!eb.tsvc(tblTamIstisna, "Tam KapsamGiren", i, new Array("0"), parent))
+                    return false;
+                if (tblTamIstisna.getData(i, 3) == "") {
+                    var msg = "Tam KapsamGiren tablosunda YKDV alandoldurmak istemiyorsanbu alana sgirmelisiniz."
+                    parent.msgBox(msg);
+                    tblTamIstisna.focus();
+                    tblTamIstisna.selectedRow = i;
+                    tblTamIstisna.selectedColumn = 3;
+                    return false;
+                }
+                var teslimHizmet = bdpp.Util.bd(tblTamIstisna.getData(i, 1));
+                var malBedeli = bdpp.Util.bd(tblTamIstisna.getData(i, 2));
+                var yuklenilenKDV = bdpp.Util.bd(tblTamIstisna.getData(i, 3));
+                var kod = tblTamIstisna.getData(i, 0).get("kod");
+                if (yuklenilenKDV.compareTo(teslimHizmet) > 0) {
+                    var msg = "Tam KapsamGiren tablosunda YKDV  Teslim ve Hizmet Tutarbolamaz .";
+                    parent.msgBox(msg);
+                    tblTamIstisna.focus();
+                    tblTamIstisna.selectedRow = i;
+                    tblTamIstisna.selectedColumn = 2;
+                    return false;
+                }
+                /* TeYatMallareki 
+                
+                if (kod.equals(tesvikliYatirim))
+                {
+                if(tblTesvikYatirimMallari.rowCount == 0)
+                {
+                if (!parent.confirm("Tam KapsamGiren tablosunda Tolarak "+ tesvikliYatirim +" kodlu Teyatmallarteslimi kaydgirilmiise&"
+                +"TeYatMallareki de doldurulmalDevam etmek istediemin misiniz?"))
+                {
+                tblTesvikYatirimMallari.focus();
+                return false;
+                }
+                }
+                }
+                */
+                if (kod.equals("328")) {
+                    if (tbl3065Istisna.rowCount == 0) {
+                        if (!parent.msgBox("Tam KapsamGiren tablosunda Tolarak Konut ve Teslimleri girilmiise&")
+                            + "3065 SayKanun'un 13 / i Maddesindeki KapsamYapTeslimlere Bildirim eki de doldurulmal") {
+                            tbl3065Istisna.focus();
+                            return false;
+                        }
+                    }
+                }
+                if (kod.equals("338")) {
+                    if (yuklenilenKDV > ((teslimHizmet.subtract(malBedeli)).multiply(bdpp.Util.bd("0.10")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP))) {
+                        var msg = "Tam KapsamGiren tablosunda yer alan 338-Mal satYKDV syazdeihracat bedelinin %10'unu a"
+                        parent.msgBox(msg);
+                        tblTamIstisna.focus();
+                        return false;
+                    }
+                }
+                if (!(kod.equals("301") || kod.equals("322") || kod.equals("338"))) {
+                    if (malBedeli > 0) {
+                        var msg = "Tam KapsamGiren tablosunda yer alan KDV Temin Edilen Mal Bedeli ssadece 301, 322 ve 338 istisna tiiyap"
+                        parent.msgBox(msg);
+                        tblTamIstisna.focus();
+                        return false;
+                    }
+                }
+            }//for
+            return true;
+        } function kontrolTblDigerIstisna(parent) {
+            var i = 0;
+            var tmp;
+            for (i = 0; i < tblDigerIstisna.rowCount; i++) {
+                if (!eb.terc(tblDigerIstisna, "DiHakkDoparent", null))
+                    return false;
+                if (!eb.tsvc(tblDigerIstisna, "DiHakkDoi", new Array("0"), parent))
+                    return false;
+                var teslimHizmet = bdpp.Util.bd(tblDigerIstisna.getData(i, 1));
+                var iadeKDV = bdpp.Util.bd(tblDigerIstisna.getData(i, 2));
+                if (iadeKDV.compareTo(teslimHizmet) > 0) {
+                    var msg = "DiHakkDotablosunda Konu Olan KDV  Teslim ve Hizmet Tutarbolamaz .";
+                    parent.msgBox(msg);
+                    tblDigerIstisna.focus();
+                    tblDigerIstisna.selectedRow = i;
+                    tblDigerIstisna.selectedColumn = 2;
+                    return false;
+                }
+                var islemTuru402 = tblDigerIstisna.getData(i, 0);
+                if (bdpp.Util.bd(eb.get("IKDI_402").value).compareTo(sifir) > 0) {
+                    if (tblTevkifatUygula.rowCount <= 0) {
+                        var mesagge;
+                        mesagge = "DiHakkDotablosuna 9/1 KDVK Md. No'lu Tevkif Edilen KDV bilgisi girilmiise,";
+                        mesagge += " & KTevkifat Uygulanan tablosunda bir bilgi bulunmal"
+                        parent.msgBox(mesagge);
+                        tblDigerIstisna.focus();
+                        tblDigerIstisna.selectedRow = i;
+                        tblDigerIstisna.selectedColumn = 0;
+                        return false;
+                    }
+                }
+                var islemTuru = tblDigerIstisna.getData(i, 0).get("kod");
+                if (islemTuru.equals("450")) {
+                    if (!parent.confirm("talebiniz yindirim orana tabi ikaynaklan439 itse")) {
+                        tblDigerIstisna.selectedColumn = 0;
+                        tblDigerIstisna.selectedRow = i;
+                        tblDigerIstisna.focus();
+                        return false;
+                    }
+                }
+            }//for
+            return true;
+        } function kontrol402_405_confirm(parent) {
+            if (tblTevkifatUygula.rowCount > 0) {
+                var mesagge, k, islem;
+                var sign = false;
+                for (k = 0; k < tblDigerIstisna.rowCount; k++) {
+                    islem = tblDigerIstisna.getData(k, 0);
+                    if (islem.get("kod") >= "409" && islem.get("kod") <= "424") {
+                        sign = true;
+                        break;
+                    }
+                }//for
+                if (!sign) {
+                    mesagge = "KTevkifat Uygulanan tablosuna bir bilgi girilmiise ";
+                    mesagge += " & DiHakkDotablosunda en az bir 9/1 KDVK Md. No'lu Tevkif Edilen KDV bilgisi girilmelidir.";
+                    /*if (!parent.confirm(mesagge +
+                    
+                    
+                    
+                    
+                    
+                    
+                     
+                    
+                    
+                    
+                    
+                    "&Devam etmek istediemin misiniz?"))
+                    
+                    
+                    
+                    {
+                    
+                    
+                    
+                    
+                    tblDigerIstisna.focus();
+                    
+                    
+                    
+                    
+                    tblDigerIstisna.selectedColumn = 0;
+                    
+                    
+                    
+                    
+                    return false;
+                    
+                    
+                    
+                    }*/
+                }
+            }
+            for (i = 0; i < tblDigerIstisna.rowCount; i++) {
+                var islemTuru402 = tblDigerIstisna.getData(i, 0);
+                if (islemTuru402.get("kod") >= "409" && islemTuru402.get("kod") <= "424") {
+                    if (!cross402_DigerIade_KismiTevkifat(parent, islemTuru402, i))
+                        return false;
+                }
+            }
+            return true;
+        } function kontrol18denBuyukOranlarIcinUyari(parent) {
+            var i;
+            for (i = 0; i < tblDigerIslemler.rowCount; i++) {
+                var matrah = bdpp.Util.bd(tblDigerIslemler.getData(i, 1));
+                var vergi = bdpp.Util.bd(tblDigerIslemler.getData(i, 2));
+                var sonuc = matrah.multiply(bdpp.Util.bd("0.18")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+                if (vergi.compareTo(sonuc) > 0) {
+                    var msg = "DiTablosunda vergi" + "& matrah%18'inden b"
+                    if (!parent.confirm(msg +
+                        "&Devam etmek istediemin misiniz?")) {
+                        tblDigerIslemler.focus();
+                        tblDigerIslemler.selectedRow = i;
+                        tblDigerIslemler.selectedColumn = 2;
+                        return false;
+                    }
+                }
+            }//for
+            for (i = 0; i < tblIhrac.rowCount; i++) {
+                var teslimBedeli = bdpp.Util.bd(tblIhrac.getData(i, 1));
+                //var yuklenilenKDV = bdpp.Util.bd(tblIhrac.getData(i,4));
+                tmp = teslimBedeli.multiply(bdpp.Util.bd("0.18")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+                /*if ( yuklenilenKDV.compareTo(tmp) > 0)
+                
+                {
+                
+                
+                var msg = "KaydTeslimlere Ait Bildirim tablosunda YKDV  Teslim Bedeli'nin %18 inden b
+                
+                
+                if (!parent.confirm(msg +
+                
+                
+                
+                
+                
+                
+                 
+                
+                
+                
+                
+                "&Devam etmek istediemin misiniz?"))
+                
+                
+                {
+                
+                
+                
+                tblIhrac.focus();
+                
+                
+                
+                tblIhrac.selectedRow = i;
+                
+                
+                
+                tblIhrac.selectedColumn = 4;
+                
+                
+                
+                return false;
+                
+                
+                }
+                
+                }*/
+            }//for
+            for (i = 0; i < tblKismiIstisna.rowCount; i++) {
+                var matrah = bdpp.Util.bd(tblKismiIstisna.getData(i, 1));
+                var yuklenilen = bdpp.Util.bd(tblKismiIstisna.getData(i, 2));
+                var sonuc = matrah.multiply(bdpp.Util.bd("0.18")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+                if (yuklenilen.compareTo(sonuc) > 0) {
+                    if (!parent.confirm("KKapsamGiren Tablosunda&" +
+                        "YKDV bilgisi Teslim ve Hizmet Tutarbilgisinin %18'indenb+Devam etmek istediemin misiniz?")) {
+                        tblKismiIstisna.focus();
+                        tblKismiIstisna.selectedRow = i;
+                        tblKismiIstisna.selectedColumn = 2;
+                        return false;
+                    }
+                }//if
+            }//for
+            for (i = 0; i < tblTamIstisna.rowCount; i++) {
+                var teslimHizmet = bdpp.Util.bd(tblTamIstisna.getData(i, 1));
+                var yuklenilenKDV = bdpp.Util.bd(tblTamIstisna.getData(i, 3));
+                var sonuc = teslimHizmet.multiply(bdpp.Util.bd("0.18")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+                if (yuklenilenKDV.compareTo(sonuc) > 0) {
+                    var msg = "Tam KapsamGiren Tablosunda YKDV" + "& Teslim ve Hizmet Tutar%18'inden b"
+                    if (!parent.confirm(msg +
+                        "&Devam etmek istediemin misiniz?")) {
+                        tblTamIstisna.focus();
+                        tblTamIstisna.selectedRow = i;
+                        tblTamIstisna.selectedColumn = 2;
+                        return false;
+                    }
+                }
+            }//for
+            for (i = 0; i < tblDigerIstisna.rowCount; i++) {
+                if (!eb.terc(tblDigerIstisna, "DiHakkDoparent", null))
+                    return false;
+                var teslimHizmet = bdpp.Util.bd(tblDigerIstisna.getData(i, 1));
+                var iadeKDV = bdpp.Util.bd(tblDigerIstisna.getData(i, 2));
+                tmp = teslimHizmet.multiply(bdpp.Util.bd("0.18")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+                if (iadeKDV.compareTo(tmp) > 0) {
+                    var mesagge;
+                    mesagge = "DiHakkDotablosunda, Konu Olan KDV, ";
+                    mesagge += " & Teslim ve Hizmet Tutar%18'inden b"
+                    if (!parent.confirm(mesagge +
+                        "&Devam etmek istediemin misiniz?")) {
+                        tblDigerIstisna.focus();
+                        tblDigerIstisna.selectedRow = i;
+                        tblDigerIstisna.selectedColumn = 2;
+                        return false;
+                    }
+                }
+            }//forreturn true;}function odenmesiGerekenIadeSifirdanFarkli(parent)
+            {
+                var odenmesiGererken = bdpp.Util.bd(ebOdenGerekKDV.text);
+                var iade = bdpp.Util.bd(ebIadeKDV.text);
+                var sifir = bdpp.Util.bd("0");
+                var temp;
+                parent.msgBox(odenmesiGererken);
+                parent.msgBox(iade);
+                if (odenmesiGereken.compareTo(sifir) != 0 && iade.compareTo(sifir) != 0) {
+                    if (odenmesiGereken.compareTo(iade) > 0) {
+                        temp = odenmesiGereken.subtract(iade);
+                    }
+                } return true;
+            } function exist(tablo, name, value) {
+                var i;
+                for (i = 0; i < tablo.rowCount; i++) {
+                    var islemTur = tablo.getData(i, 0);
+                    if (islemTur.get(name) == value)
+                        return true;
+                }//forreturn false;}function kontrolMukellefHSV(parent)
+                {
+                    return bdpp.Util.kontrolMukellefHSV(rgSifat, beanKimlikBilgileri, beanHSVBilgileri, parent,
+                        'Beyannamenin Hangi SVerildikMseise &girilen bilgiler Mkbilgilerle aynolmal Beyannamenin Hangi SVerildikMseise &girilen bilgiler Mkbilgilerden farklolmal.'
+                    );
+                } function initIdariBilgiler() {
+                    ONE_PARAM_ARRAY[0] = new Array(1, 2);
+                    beanIdariBilgiler.executeScriptFunction("setIzinVerilenDonemTipleri", ONE_PARAM_ARRAY);
+                    ONE_PARAM_ARRAY[0] = background;
+                    beanIdariBilgiler.executeScriptFunction("setBackgroundColors", ONE_PARAM_ARRAY);
+                } function kontrol(parent) {
+                    if (cbBosByn.selected) // bos check boxi secilmisse
+                    {
+                        if (!ebbos.control(parent))
+                            return false;
+                        return parent.confirm('Beyan edilecek bilgim bulunmamaktadisedurumda &' +
+                            'beyannamenin geri kalan alanlargirdibilgiler dikkate &' +
+                            'alve kaydedilmeyecektir. Bu devam etmek istediemin misiniz?');
+                    }
+                    return eb.control(parent);
+                } function loadMukellefBilgileri(vkn) {
+                    var kb = bdpp.KayitliBilgiler.getMukellef(vkn);
+                    if (kb == null)
+                        return;
+                    ONE_PARAM_ARRAY[0] = kb;
+                    beanKimlikBilgileri.executeScriptFunction("load", ONE_PARAM_ARRAY);
+                } function beanKimlikBilgileri_yukleBasildi(event) {
+                    if (beanKimlikBilgileri.tcKimlikNo != '')
+                        loadMukellefBilgileri(beanKimlikBilgileri.tcKimlikNo);
+                    else if (beanKimlikBilgileri.vergiNo != '')
+                        loadMukellefBilgileri(beanKimlikBilgileri.vergiNo);
+                } function loadHSVBilgileri(vkn) {
+                    var kb = bdpp.KayitliBilgiler.getMukellef(vkn);
+                    if (kb == null)
+                        return;
+                    ONE_PARAM_ARRAY[0] = kb;
+                    beanHSVBilgileri.executeScriptFunction("load", ONE_PARAM_ARRAY);
+                } function beanHSVBilgileri_yukleBasildi(event) {
+                    if (beanHSVBilgileri.tcKimlikNo != '')
+                        loadHSVBilgileri(beanHSVBilgileri.tcKimlikNo);
+                    else if (beanHSVBilgileri.vergiNo != '')
+                        loadHSVBilgileri(beanHSVBilgileri.vergiNo);
+                } function loadDuzenleyenBilgileri(vkn) {
+                    var kb = bdpp.KayitliBilgiler.getDuzenleyen(vkn);
+                    if (kb == null)
+                        return;
+                    ONE_PARAM_ARRAY[0] = kb;
+                    beanDuzenleyenBilgileri.executeScriptFunction("load", ONE_PARAM_ARRAY);
+                } function beanDuzenleyenBilgileri_yukleBasildi(event) {
+                    if (beanDuzenleyenBilgileri.tcKimlikNo != '')
+                        loadDuzenleyenBilgileri(beanDuzenleyenBilgileri.tcKimlikNo);
+                    else if (beanDuzenleyenBilgileri.vergiNo != '')
+                        loadDuzenleyenBilgileri(beanDuzenleyenBilgileri.vergiNo);
+                }
+                /////////////////////////KAYDETME//////////////////////////////////
+                function getUcBilgi() {
+                    return bdpp.Util.getUcBilgi(beanIdariBilgiler, beanKimlikBilgileri);
+                } function getBeyannameGenel() {
+                    return bdpp.Util.getBeyannameGenel(beanIdariBilgiler, beanKimlikBilgileri, beanHSVBilgileri, rgSifat, beanDuzenleyenBilgileri);
+                } function getEkler() {
+                    var eklerString = "";
+                    var found = false;
+                    /* TeYatMallareki 
+                    if ((tblYukleniciFirma.rowCount > 0) || (tblTurkHavaKuvvetleri.rowCount > 0) || (tblTevkifatUygulaEk.rowCount > 0) || (tblTeknolojiGelistirmeBolgeleri.rowCount > 0) || tblTesvikYatirimMallari.rowCount > 0)
+                    */
+                    if ((tblYukleniciFirma.rowCount > 0) || (tblTurkHavaKuvvetleri.rowCount > 0) || (tblTevkifatUygulaEk.rowCount > 0) || (tblTeknolojiGelistirmeBolgeleri.rowCount > 0) || (tblMakinaTechizatAl > 0) || (tbl3065Istisna.rowCount > 0) || tblDegersizBildirim.rowCount > 0 || tblInd107Donem.rowCount > 0 || tblTamVeKismiIstisna.rowCount > 0 || tblYenilenmisCepTel.rowCount > 0 || tblTamTevkifatUygulaEk.rowCount > 0)
+                        found = true;
+                    if (found)
+                        eklerString += "\
+\
+<ekler>\\n"
+                    if (tblYukleniciFirma.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\
+\
+\
+', tblYukleniciFirma,
+                            null, new Array("duzenleyenVergiNo", "verilenTarih", "verilenSayisi", "onaylananTarihi", "onaylananSayisi", "aliciUnvani", "aliciVergiNo", "hizmetSiraNo", "hizmetCinsi", "hizmetOlcuBirimi", "hizmetMiktari", "faturaTarihi", "faturaNo", "faturaBedeli"),
+                            "yukleniciFirmayaYapilanHizmetler", "yukleniciFirmayaYapilanHizmet");
+                    }
+                    if (tblTurkHavaKuvvetleri.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\
+\
+\
+', tblTurkHavaKuvvetleri,
+                            null, new Array("biletAdedi", "payTutari", "toplamPayTutari"),
+                            "turkHavaKuvvetleriBildirimi", "turkHavaKuvvetleri");
+                    }
+                    if (tblTevkifatUygulaEk.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\
+\
+\
+', tblTevkifatUygulaEk,
+                            null, new Array("tckn", "vkn", "unvan", "faturaBelgeTarihi", "seriNo", "siraNo", "kismiTevkifatUygulananIslemTuru", "matrah", "oran", "hesaplananKDV", "tevkifatOrani", "vergi"),
+                            "kismiTevkifatUygulananlarEk", "kismiTevkifatUygulananEk");
+                    }
+                    //35. version -start
+                    if (tblTamTevkifatUygulaEk.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\
+\
+\
+', tblTamTevkifatUygulaEk,
+                            null, new Array("tckn", "vkn", "unvan", "faturaBelgeTarihi", "seriNo", "siraNo", "islemTuru", "islemTutari", "kdvOran", "vergi"),
+                            "istegeBagliTamTevkifatUygulananlarEk", "istegeBagliTamTevkifatUygulananEk");
+                        eklerString += bdpp.XmlUtil.f2xml('\
+\
+\
+', ebTopIslemEk, "toplamIslemTutarIB");
+                        eklerString += bdpp.XmlUtil.f2xml('\
+\
+\
+', ebTopVergiEk, "topVergiIB");
+                    }
+                    //35. version -end
+                    if (tblTeknolojiGelistirmeBolgeleri.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\
+\
+\
+', tblTeknolojiGelistirmeBolgeleri,
+                            null, new Array("ilIlce", "ruhsatTarih", "ruhsatNumara", "teslimHizmetBedeli", "yuklenilenKDV"),
+                            "teknolojiGelistirmeBolgeleriEk", "teknolojiGelistirmeBolgesiEk");
+                    }
+                    /* TeYatMallareki 
+                    if(tblTesvikYatirimMallari.rowCount > 0)
+                    {
+                    
+                    eklerString += bdpp.XmlUtil.t2xml('\
+                    \
+                    \
+                    ', tblTesvikYatirimMallari,
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                      null, new Array("ilIlce","tesvikBelgeTarih","tesvikBelgeNumara","teslimHizmetBedeli","yuklenilenKDV"),
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                       "tesvikYatirimMallariEk", "tesvikYatirimMaliEk");
+                    }
+                    */
+                    if (tblMakinaTechizatAl > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\\\', tblMakinaTechizatAl, new Array("saticiVKN", "saticiVD", "saticiUnvan", "alinanMalCins", "alinanMalMiktar", "alinanMalTutar", "alisFaturaTarih", "alisFaturaSayi", "tesvikBelgeTarih", "tesvikBelgeSayi"), "makinaTechizatAlimlariEk", "makinaTechizatAlimiEk");')
+                    }
+                    if (tbl3065Istisna.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\\\', tbl3065Istisna, null, new Array("aliciUnvan", "aliciVKNTCKN", "aliciUyruk", "aliciIzinUlke", "aliciMerkezUlke", "tasinmazIlIlce", "tasinmazNitelik", "tasinmazAda", "tasinmazParsel", "tasinmazUAVT", "tasinmazZemin", "satisTarih", "satisSayi", "satisTutar"), "istisna3065", "istisna3065Satir");')
+                    }
+                    if (tblDegersizBildirim.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\\\', tblDegersizBildirim, null, new Array("tcvkn", "unvan", "faturaTarih", "faturaSeri", "faturaSira", "tutar", "kdv", "degersizTarih"), "degersizAlacakBildirimleri", "degersizBildirim")');
+                    }
+                    if (tblInd107Donem.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\\\', tblInd107Donem, null, new Array("fatDuzenAy", "fatDuzenYil", "fatKDV", "kdv107Indirim"), "indirim107DonemBilgileri", "indirim107Bilgi")');
+                    }
+                    if (tblTamVeKismiIstisna.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\\\', tblTamVeKismiIstisna, null, new Array("istisnaTuru", "bolge", "belgeNo", "teslimBedel", "tabiOran", "vkn"), "tamVeKismiIstisnalar", "tamVeKismiIstisna")');
+                    }
+                    if (tblYenilenmisCepTel.rowCount > 0) {
+                        eklerString += bdpp.XmlUtil.t2xml('\\\', tblYenilenmisCepTel, null, new Array("alisBelgeTur", "alisBelgeTarih", "alisBelgeSeriNo", "satisKimlikTur", "satisKimlikNo", "saticiAdSoyad", "alisBedel", "odenenKdv", "marka", "model", "imei", "satisBelgeTur", "satisBelgeTarih", "satisBelgeSeriNo", "alisKimlikTur", "alisKimlikNo", "aliciAdSoyad", "satisBedel", "hesaplananKDV"), "yenilenmisCepTelefon", "yenilenmisCepTel")');
+                    }
+                    if (found)
+                        eklerString += "\\</ekler>\\n"
+                    return eklerString;
+                } function getBeyannameOzel() {
+                    var i;
+                    var x = '\<ozel>\\n';
+                    if (tblTevkifatUygulama.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblTevkifatUygulama, null, new Array("matrah", "oran", "vergi"), "tevkifatUygulanmayanlar", "tevkifatUygulanmayan");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopTevUygulama, "vergiToplami");
+                    }
+                    if (tblTevkifatUygula.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblTevkifatUygula, null, new Array("kismiTevkifatUygulananIslemTuru", "matrah", "oran", "tevkifatOrani", "vergi"), "kismiTevkifatUygulananlar", "kismiTevkifatUygulanan");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTevUygula, "kismiVergiToplami");
+                    }
+                    if (tblDigerIslemler.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblDigerIslemler, null, new Array("islemTuru", "matrah", "vergi"), "digerIslemler", "digerIslem");
+                        x += bdpp.XmlUtil.f2xml('\\', ebDigerIslemler, "digerVergiToplami");
+                    }
+                    if (tblTamTevkifatUygulanan.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblTamTevkifatUygulanan, null, new Array("islemTuru", "matrah", "kdvOran", "vergi"), "istegeBagliTamTevkifatUygulananlar", "istegeBagliTamTevkifatUygulanan");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTamTevkifatTop, "istegeBagliTamTevkifatVergiToplami");
+                    }
+                    x += bdpp.XmlUtil.f2xml('\\', ebTopMatrah, "toplamMatrah");
+                    x += bdpp.XmlUtil.f2xml('\\', ebHesaplananKDV, "hesaplananKDV");
+                    if (ebIlaveKDV.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebIlaveKDV, "ilaveEdilecekKDV");
+                    x += bdpp.XmlUtil.f2xml('\\', ebToplamKDV, "toplamKDV");
+                    if (tblIndirimler.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblIndirimler,
+                            null, new Array("indirimTuru", "vergi"),
+                            "indirimler", "indirim");
+                        x += bdpp.XmlUtil.f2xml('\\', ebIndirimlerTop, "indirimlerToplami");
+                    }
+                    if (tblOranDagilim.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblOranDagilim,
+                            null, new Array("oran", "bedel", "KDVTutari"),
+                            "indirilecekKDVODler", "indirilecekKDVOD");
+                        x += bdpp.XmlUtil.f2xml('\\', ebOranDagilimToplam, "indirilecekKDVODToplamKDV");
+                    }
+                    if (tblIndirimNeden.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblIndirimNeden,
+                            null, new Array("indirimNedenTur", "indirimAciklama", "indirimMiktar"),
+                            "indirimNedenleri", "indirimNeden");
+                    }
+                    if (tblIhrac.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblIhrac,
+                            null, new Array("ihracKayitliTeslimlerIslemTuru", "teslimBedeli", "oran", "hesaplananKDV"),
+                            "ihracKaydiylaTeslimler", "ihracKaydiylaTeslim");
+                        x += bdpp.XmlUtil.f2xml('\\', ebIhracKaydTeslimBedeli, "ihracKaydiylaTeslimBedelToplam");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTecilEdbrKDV, "tecilEdilebilirKDV");
+                    }
+                    x += bdpp.XmlUtil.f2xml('\\', ebGerceklesmeyenTecilEdilemeyen, "ihracGerceklesmeyenTecilEdilemeyenKDV");
+                    if (ebKDVsizlerIcinOdenmeyenKDV.text == "") {
+                        ebKDVsizlerIcinOdenmeyenKDV.text = "0";
+                    }
+                    x += bdpp.XmlUtil.f2xml('\\', ebKDVsizlerIcinOdenmeyenKDV, "kdvsizTeminEdilenlerIcinOdenmeyenKDV");
+                    if (ebIhrDonemIadeKDV.text == "") {
+                        ebIhrDonemIadeKDV.text = "0";
+                    }
+                    x += bdpp.XmlUtil.f2xml('\\', ebIhrDonemIadeKDV, "ihracatDonemindeIadeEdilecekKDV");
+                    if (ebYuklenilenKDV.text == "") {
+                        ebYuklenilenKDV.text = "0";
+                    }
+                    x += bdpp.XmlUtil.f2xml('\\', ebYuklenilenKDV, "yuklenilenKDV");
+                    if (ebIndirimFark.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebIndirimFark, "ihracVergiFark");
+                    if (tblKismiIstisna.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblKismiIstisna,
+                            null, new Array("kod", "teslimVeHizmetTutari", "yuklenilenKDV"),
+                            "kismiIstisnalar", "kismiIstisna");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopKismiHizmet, "toplamKismiTeslimVeHizmetTutari");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopKismiYukKDV, "toplamKismiYuklenilenKDV");
+                    }
+                    if (tblTamIstisna.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblTamIstisna,
+                            null, new Array("islemTuru", "teslimVeHizmetTutari", "kdvOdemeksizinMalBedeli", "yuklenilenKDV"),
+                            "tamIstisnalar", "tamIstisna");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopTamHizmet, "toplamTamTeslimVeHizmetTutari");
+                        if (ebTopTamMalBedeli.text != "" && bdpp.Util.bd(ebTopTamMalBedeli.text).compareTo(bdpp.Util.bd("0")) != 0)
+                            x += bdpp.XmlUtil.f2xml('\\', ebTopTamMalBedeli, "toplamTamMalBedeliTutari");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopTamYukKDV, "toplamTamYuklenilenKDV");
+                    }
+                    if (!(tblKismiIstisna.rowCount == 0 && tblTamIstisna.rowCount == 0))
+                        x += bdpp.XmlUtil.f2xml('\\', ebIstisnaKapsami, "istisnaKapsamiTeslimVeHizmet");
+                    if (tblIstegeBagliTamTevkifat.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblIstegeBagliTamTevkifat, null, new Array("islemTuru", "teslimVeHizmetTutari", "iadeyeKonuOlanKDV"), "istegeBagliTamIstisnalar", "istegeBagliTamIstisna");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopTeslimHizmet, "toplamIstegeBagliTeslimVeHizmetTutari");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopIadeKonuKDV, "toplamIstegeBagliYuklenilenKDV");
+                    }
+                    if (tblDigerIstisna.rowCount > 0) {
+                        x += bdpp.XmlUtil.t2xml('\\', tblDigerIstisna, null, new Array("islemTuru", "teslimVeHizmetTutari", "iadeyeKonuOlanKDV"), "digerIadeler", "digerIade");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopDigerHizmet, "toplamDigerTeslimVeHizmetTutari");
+                        x += bdpp.XmlUtil.f2xml('\\', ebTopDigerYukKDV, "toplamDigerYuklenilenKDV");
+                    }
+                    if (ebIadeEdilebilir.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebIadeEdilebilir, "toplamIadeEdilebilirKDV");
+                    x += bdpp.XmlUtil.f2xml('\\', ebTecilEdckKDV, "tecilEdilecekKDV");
+                    x += bdpp.XmlUtil.f2xml('\\', ebOdenGerekKDV, "odenmesiGerekenKDV");
+                    x += bdpp.XmlUtil.f2xml('\\', ebIadeKDV, "iadeEdilmesiGerekenKDV");
+                    x += bdpp.XmlUtil.f2xml('\\', ebDevredenKDV, "sonrakiDonemeDevredenKDV");
+                    if (ebMatDahilOlmayan.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebMatDahilOlmayan, "matrahaDahilOlmayanBedel");
+                    if (ebBedelTutari.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebBedelTutari, "teslimVeHizmetleriTeskilEdenBedelAylik");
+                    if (ebKumulBedel.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebKumulBedel, "teslimVeHizmetleriTeskilEdenBedelKumulatif");
+                    if (ebKrediKarti.text != "")
+                        x += bdpp.XmlUtil.f2xml('\\', ebKrediKarti, "krediKarti");
+                    /*if (tblBelgeBilgileri.rowCount > 0 && bdpp.Util.bd(ebBedelTutari.text).compareTo(bdpp.Util.bd("0")) != 0)
+                    {
+                    
+                    x += saveBelgeBilgileri('\
+                    \
+                    ');
+                    
+                    x += bdpp.XmlUtil.f2xml('\
+                    \
+                    ', ebTopBelgeSayisi, "toplamBelgesayisi");
+                    }*/
+                    x += getEkler();
+                    x += '\</ozel>\\n'
+                    return x;
+                } function beyanimYokIsaretli() {
+                    return cbBosByn.selected;
+                } function loadBeyannameGenel(bg) {
+                    bdpp.Util.loadBeyannameGenel(bg, beanIdariBilgiler, beanKimlikBilgileri, beanHSVBilgileri, rgSifat, beanDuzenleyenBilgileri);
+                } function loadBeyannameOzel(ozel) {
+                    if (ozel == null) {
+                        cbBosByn.selected = true;
+                        return;
+                    }
+                    xu.xml2t(ozel, tblTevkifatUygulama,
+                        new Array("2"), new Array("matrah", "oran", "vergi"),
+                        "tevkifatUygulanmayanlar", "tevkifatUygulanmayan");
+                    xu.xml2t(ozel, tblTevkifatUygula,
+                        new Array("4"), new Array("kismiTevkifatUygulananIslemTuru", "matrah", "oran", "tevkifatOrani", "vergi"), //TODO new Array icerigi degisecek
+                        "kismiTevkifatUygulananlar", "kismiTevkifatUygulanan");
+                    xu.xml2t(ozel, tblDigerIslemler,
+                        null, new Array("islemTuru", "matrah", "vergi"),
+                        "digerIslemler", "digerIslem");
+                    // matrah-istege bagli tam tevkifat
+                    xu.xml2t(ozel, tblTamTevkifatUygulanan,
+                        null, new Array("islemTuru", "matrah", "kdvOran", "vergi"),
+                        "istegeBagliTamTevkifatUygulananlar", "istegeBagliTamTevkifatUygulanan");
+                    xu.xml2f(ozel, ebIlaveKDV, "ilaveEdilecekKDV");
+                    xu.xml2t(ozel, tblIndirimler,
+                        null, new Array("indirimTuru", "vergi"),
+                        "indirimler", "indirim");
+                    xu.xml2t(ozel, tblOranDagilim,
+                        null, new Array("oran", "bedel", "KDVTutari"),
+                        "indirilecekKDVODler", "indirilecekKDVOD");
+                    xu.xml2t(ozel, tblIndirimNeden,
+                        null, new Array("indirimNedenTur", "indirimAciklama", "indirimMiktar"),
+                        "indirimNedenleri", "indirimNeden");
+                    xu.xml2t(ozel, tblIhrac,
+                        new Array("3"), new Array("ihracKayitliTeslimlerIslemTuru", "teslimBedeli", "oran", "hesaplananKDV"),
+                        "ihracKaydiylaTeslimler", "ihracKaydiylaTeslim");
+                    xu.xml2f(ozel, ebIhracKaydTeslimBedeli, "ihracKaydiylaTeslimBedelToplam");
+                    xu.xml2f(ozel, ebKDVsizlerIcinOdenmeyenKDV, "kdvsizTeminEdilenlerIcinOdenmeyenKDV");
+                    xu.xml2f(ozel, ebYuklenilenKDV, "yuklenilenKDV");
+                    xu.xml2t(ozel, tblKismiIstisna,
+                        null, new Array("kod", "teslimVeHizmetTutari", "yuklenilenKDV"),
+                        "kismiIstisnalar", "kismiIstisna");
+                    xu.xml2t(ozel, tblTamIstisna,
+                        null, new Array("islemTuru", "teslimVeHizmetTutari", "kdvOdemeksizinMalBedeli", "yuklenilenKDV"),
+                        "tamIstisnalar", "tamIstisna");
+                    xu.xml2t(ozel, tblIstegeBagliTamTevkifat,
+                        null, new Array("islemTuru", "teslimVeHizmetTutari", "iadeyeKonuOlanKDV"), "istegeBagliTamIstisnalar", "istegeBagliTamIstisna");
+                    xu.xml2t(ozel, tblDigerIstisna,
+                        null, new Array("islemTuru", "teslimVeHizmetTutari", "iadeyeKonuOlanKDV"),
+                        "digerIadeler", "digerIade");
+                    xu.xml2f(ozel, ebMatDahilOlmayan, "matrahaDahilOlmayanBedel");
+                    xu.xml2f(ozel, ebKumulBedel, "teslimVeHizmetleriTeskilEdenBedelKumulatif");
+                    xu.xml2f(ozel, ebKrediKarti, "krediKarti");
+                    /*xu.xml2t(ozel, tblBelgeBilgileri,
+                        null, new Array("belgeTuru", "belgeSayisi"),
+                         "belgeBilgileri", "belgeBilgisi");*/
+                    loadBelgeBilgileri(ozel);
+                    xu.xml2t(ozel, tblYukleniciFirma,
+                        null, new Array("duzenleyenVergiNo", "verilenTarih", "verilenSayisi", "onaylananTarihi", "onaylananSayisi", "aliciUnvani", "aliciVergiNo", "hizmetSiraNo", "hizmetCinsi", "hizmetOlcuBirimi", "hizmetMiktari", "faturaTarihi", "faturaNo", "faturaBedeli"),
+                        "ekler.yukleniciFirmayaYapilanHizmetler", "yukleniciFirmayaYapilanHizmet");
+                    xu.xml2t(ozel, tblTurkHavaKuvvetleri,
+                        null, new Array("biletAdedi", "payTutari", "toplamPayTutari"),
+                        "ekler.turkHavaKuvvetleriBildirimi", "turkHavaKuvvetleri");
+                    xu.xml2t(ozel, tblTevkifatUygulaEk,
+                        null, new Array("tckn", "vkn", "unvan", "faturaBelgeTarihi", "seriNo", "siraNo", "kismiTevkifatUygulananIslemTuru", "matrah", "oran", "hesaplananKDV", "tevkifatOrani", "vergi"),
+                        "ekler.kismiTevkifatUygulananlarEk", "kismiTevkifatUygulananEk");
+                    xu.xml2t(ozel, tblTamTevkifatUygulaEk,
+                        null, new Array("tckn", "vkn", "unvan", "faturaBelgeTarihi", "seriNo", "siraNo", "islemTuru", "islemTutari", "kdvOran", "vergi"),
+                        "ekler.istegeBagliTamTevkifatUygulananlarEk", "istegeBagliTamTevkifatUygulananEk");
+                    xu.xml2t(ozel, tblTeknolojiGelistirmeBolgeleri,
+                        null, new Array("ilIlce", "ruhsatTarih", "ruhsatNumara", "teslimHizmetBedeli", "yuklenilenKDV"),
+                        "ekler.teknolojiGelistirmeBolgeleriEk", "teknolojiGelistirmeBolgesiEk");
+                    /* TeYatMallareki 
+                    xu.xml2t(ozel, tblTesvikYatirimMallari,
+                    null, new Array("ilIlce","tesvikBelgeTarih","tesvikBelgeNumara","teslimHizmetBedeli","yuklenilenKDV"),
+                    "ekler.tesvikYatirimMallariEk", "tesvikYatirimMaliEk");
+                    */
+                    xu.xml2t(ozel, tblMakinaTechizatAlnull, new Array("saticiVKN", "saticiVD", "saticiUnvan", "alinanMalCins", "alinanMalMiktar", "alinanMalTutar", "alisFaturaTarih", "alisFaturaSayi", "tesvikBelgeTarih", "tesvikBelgeSayi"), "ekler.makinaTechizatAlimlariEk", "makinaTechizatAlimiEk");
+                    xu.xml2t(ozel, tbl3065Istisna,
+                        null, new Array("aliciUnvan", "aliciVKNTCKN", "aliciUyruk", "aliciIzinUlke", "aliciMerkezUlke", "tasinmazIlIlce", "tasinmazNitelik", "tasinmazAda", "tasinmazParsel", "tasinmazUAVT", "tasinmazZemin", "satisTarih", "satisSayi", "satisTutar"),
+                        "ekler.istisna3065", "istisna3065Satir");
+                    xu.xml2t(ozel, tblDegersizBildirim,
+                        null, new Array("tcvkn", "unvan", "faturaTarih", "faturaSeri", "faturaSira", "tutar", "kdv", "degersizTarih"),
+                        "ekler.degersizAlacakBildirimleri", "degersizBildirim");
+                    xu.xml2t(ozel, tblInd107Donem,
+                        null, new Array("fatDuzenAy", "fatDuzenYil", "fatKDV", "kdv107Indirim"),
+                        "ekler.indirim107DonemBilgileri", "indirim107Bilgi");
+                    xu.xml2t(ozel, tblTamVeKismiIstisna,
+                        null, new Array("istisnaTuru", "bolge", "belgeNo", "teslimBedel", "tabiOran", "vkn"),
+                        "ekler.tamVeKismiIstisnalar", "tamVeKismiIstisna");
+                    xu.xml2t(ozel, tblYenilenmisCepTel, null, new Array("alisBelgeTur", "alisBelgeTarih", "alisBelgeSeriNo", "satisKimlikTur", "satisKimlikNo", "saticiAdSoyad", "alisBedel", "odenenKdv", "marka", "model", "imei", "satisBelgeTur", "satisBelgeTarih", "satisBelgeSeriNo", "alisKimlikTur", "alisKimlikNo", "aliciAdSoyad", "satisBedel", "hesaplananKDV"), "ekler.yenilenmisCepTelefon", "yenilenmisCepTel");
+                    if (tblTurkHavaKuvvetleri.rowCount > 0) {
+                        tblTurkHavaKuvvetleri.setData(0, 1, "0.05")
+                    }
+                }
+                /*function kontrol_SatirSinirla(tablo, limit){
+var rc = tablo.rowCount;
+if (event.type == event.INSERT)
+{
+if (rc == limit)
+tablo.autoInsert = false;
+}
+else if (event.type == event.DELETE)
+{
+if (rc < limit)
+tablo.autoInsert = true;
+}}*/
+                function tblIhrac_dataChanged(event) {
+                    var rc = tblIhrac.rowCount;
+                    var selected = tblIhrac.selectedRow;
+                    if (event.type == event.UPDATE) {
+                        if (event.column == 3) {
+                            var data = tblIhrac.getData(selected, 2);
+                            if (data != "") {
+                                if (data == "18") {
+                                    hesaplanan = tblIhrac.getData(selected, 3);
+                                    /*tblIhrac.setData(selected, 4, hesaplanan);
+                                    
+                                    */
+                                }
+                            }
+                        }
+                    }
+                    var toplam = bdpp.Util.bd("0");
+                    for (var i = 0; i < rc; i++)
+                        toplam = toplam.add(bdpp.Util.bd(tblIhrac.getData(i, 3)));
+                    if (rc == 0) {
+                        ebKDVsizlerIcinOdenmeyenKDV.text = "0";
+                    }
+                    eb.get("TOP_IHRAC_VERGI").value = toplam;
+                    eb.get("A8").value = toplam;
+                    eb.get("IHR_DON_IADE_KDV").value = toplam;
+                    ihracatDonemiIadeKdvHesapla();
+                    iadeEdilecekYuklenilenVergiFark
+                    sonrakiDonemeDevredenHesapla();
+                    //yuklenilenFarkHesapla();}function tblOranDagilim_dataChanged(event)
+                    {
+                        if (event.type == event.UPDATE) {
+                            var oranObj = tblOranDagilim.getData(event.row, 0);
+                            if (oranObj != null && oranObj != undefined && oranObj != "") {
+                                oran = oranObj.get("oran");
+                                var bedel = yuz.multiply(bdpp.Util.bd(tblOranDagilim.getData(event.row, 2))).divide(bdpp.Util.bd(oran), 2, java.math.BigDecimal.ROUND_HALF_UP);
+                                tblOranDagilim.setData(event.row, 1, bedel);
+                            }
+                        }
+                    } function tblYenilenmisCepTel_dataChanged(event) {
+                        if (event.type == event.UPDATE || event.type == event.INSERT) {
+                            if (event.column == 3 || event.column == 4) {
+                                var satisKT = tblYenilenmisCepTel.getData(event.row, 3);
+                                var satisKN = tblYenilenmisCepTel.getData(event.row, 4);
+                                if (satisKT != null && satisKT != undefined && satisKT != "" && satisKN != null && satisKN != undefined && satisKN != "") {
+                                    if (satisKT.get("kod") == "1" && (satisKN.length() != 11 || isNaN(satisKN))) {
+                                        host.msgBox('Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda SatKimlik TT.C. Kimlik seSatKimlik Numaras11 haneli sayolmal')
+                                        tblYenilenmisCepTel.setData(event.row, 4, "");
+                                    }
+                                    if (satisKT.get("kod") == "2" && (satisKN.length() != 10 || isNaN(satisKN))) {
+                                        host.msgBox('Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda SatKimlik TVergi Kimlik seSatKimlik Numaras10 haneli sayolmal')
+                                        tblYenilenmisCepTel.setData(event.row, 4, "");
+                                    }
+                                    if (satisKT.get("kod") == "3" && satisKN.length() != 9) {
+                                        host.msgBox('Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda SatKimlik TPasaport seSatKimlik Numaras9 karakter olmal')
+                                        tblYenilenmisCepTel.setData(event.row, 4, "");
+                                    }
+                                }
+                            }
+                            if (event.column == 14 || event.column == 15) {
+                                var alisKT = tblYenilenmisCepTel.getData(event.row, 14);
+                                var alisKN = tblYenilenmisCepTel.getData(event.row, 15);
+                                if (alisKT != null && alisKT != undefined && alisKT != "" && alisKN != null && alisKN != undefined && alisKN != "") {
+                                    if (alisKT.get("kod") == "1" && (alisKN.length() != 11 || isNaN(alisKN))) {
+                                        host.msgBox('Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda AlKimlik TT.C. Kimlik seAlKimlik Numaras11 haneli sayolmal')
+                                        tblYenilenmisCepTel.setData(event.row, 15, "");
+                                    }
+                                    if (alisKT.get("kod") == "2" && (alisKN.length() != 10 || isNaN(alisKN))) {
+                                        host.msgBox('Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda AlKimlik TVergi Kimlik seAlKimlik Numaras10 haneli sayolmal')
+                                        tblYenilenmisCepTel.setData(event.row, 15, "");
+                                    }
+                                    if (alisKT.get("kod") == "3" && alisKN.length() != 9) {
+                                        host.msgBox('Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda AlKimlik TPasaport seAlKimlik Numaras9 karakter olmal')
+                                        tblYenilenmisCepTel.setData(event.row, 15, "");
+                                    }
+                                }
+                            }
+                        }
+                    } function kontrolIndirimler(parent) {
+                        if (!eb.tec(tblOranDagilim, "Bu DAit KDV TutarOranlara GDaparent", null, new Array("0")))
+                            return false;
+                        var vergiTop = bdpp.Util.bd("0");
+                        var indirilecekKDVGirilmis = false;
+                        for (var i = 0; i < tblIndirimler.rowCount; i++) {
+                            var kod = tblIndirimler.getData(i, 0);
+                            if (kod != undefined && kod != null && (kod.get("kod") == '108' || kod.get("kod") == '109' || kod.get("kod") == '110')) {
+                                indirilecekKDVGirilmis = true;
+                                vergiTop = vergiTop.add(bdpp.Util.bd(tblIndirimler.getData(i, 1)));
+                                //
+                                break;
+                            }
+                        }
+                        if (tblOranDagilim.rowCount > 0 && !indirilecekKDVGirilmis) {
+                            if (!parent.confirm("Bu DAit KDV TutarOranlara GDatablosuna bilgi girildi ise &Tablosu T'108' , '109' veya '110' olan satbilgisi girilmiolmalDevam etmek istediemin misiniz?")) {
+                                tblIndirimler.focus();
+                                return false;
+                            }
+                        }
+                        if (tblOranDagilim.rowCount == 0 && indirilecekKDVGirilmis) {
+                            if (!parent.confirm("Tablosu T'108' , '109' veya '110' olan satbilgisi girilmiise &Bu DAit KDV TutarOranlara GDatablosuna bilgi girilmiolmalDevam etmek istediemin misiniz?")) {
+                                tblOranDagilim.focus();
+                                return false;
+                            }
+                        }
+                        if (indirilecekKDVGirilmis) {
+                            var kdvDonemeAitInd = bdpp.Util.bd(eb.calculateTableColumnSum(tblOranDagilim, 2));
+                            if (vergiTop.compareTo(kdvDonemeAitInd) != 0) {
+                                if (!parent.confirm("tablosunda T108 109 110 olan satvergi toplamBu DAit KDVOranlara GDatablosu KDV tutarlartoplameolmalDevam etmek istiyor musunuz?")) {
+                                    tblOranDagilim.focus();
+                                    return false;
+                                }
+                            }
+                        }
+                        return true;
+                    } function kontrolSonucHesaplari(parent) {
+                        var aylik = bdpp.Util.bd(ebBedelTutari.text);
+                        var kumulatif = bdpp.Util.bd(ebKumulBedel.text);
+                        if (aylik.compareTo(kumulatif) > 0) {
+                            ebKumulBedel.focus();
+                            parent.msgBox('Teslim ve Hizmetlerin KarTeEden Bedel (kalangirilen deTeslim ve Hizmetlerin KarTeEden Bedel (ayldekolamaz');
+                            return false;
+                        }
+                        if (ebKrediKarti.text == '') {
+                            ebKrediKarti.focus();
+                            parent.msgBox('Kredi KartTahsil Edilen Teslim ve Hizmetlerin KDV Dahil KarTeEden Bedel &bilgisi bob&Kredi Kartile tahsilat yapbu alana 0(Sgirilecektir.');
+                            return false;
+                        }
+                        return true;
+                    }
+                    /*function tblTamIstisna_dataChanged(event){
+if (event.type == event.UPDATE && event.column == 0) {
+var kod = tblTamIstisna.getData(event.row, event.column);
+if (kod != null && kod != undefined && kod != '' && kod.get("kod") == "307") 
+{
+host.msgBox('Satbu istisna uygulamaskapsamiade haklaryoktur. &'+
+'altaraftalep edilebilmektedir. Altaraf&'+
+'KDV tutarDiHakkDotablosunda 426 &'+
+'kodlu sataraciade konusu yap
+tblTamIstisna.setData(event.row, event.column, null);
+}
+}}
+*/
+                    function tblTurkHavaKuvvetleri_dataChanged(event) {
+                        var rc = tblTurkHavaKuvvetleri.rowCount;
+                        if (event.type == event.INSERT) {
+                            tblTurkHavaKuvvetleri.setData(0, 1, "0.05")
+                            if (rc == 1) {
+                                tblTurkHavaKuvvetleri.autoInsert = false;
+                            }
+                        }
+                        else if (event.type == event.DELETE) {
+                            if (rc < 1)
+                                tblTurkHavaKuvvetleri.autoInsert = true;
+                        }
+                    } function tblTevkifatUygula_dataChanged(event) {
+                        if (event.type == event.UPDATE) {
+                            if (event.column == 0) {
+                                if (tblTevkifatUygula.getData(event.row, 0) != null) {
+                                    var dataLookup = tblTevkifatUygula.getData(event.row, 0);
+                                    if (dataLookup != "") {
+                                        var data = dataLookup.get("kod");
+                                        if (!data.equals("650")) {
+                                            tblTevkifatUygula.setData(event.row, 3, dataLookup.get("oran"))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } function kontrolTblTevkifatUygula(parent) {
+                        var ib = bdpp.Util.getIdariBilgiler(beanIdariBilgiler);
+                        var donem = ib.donem;
+                        var donemStr = donem.toVedopDonem();
+                        //var kasimOncesiOran617618 = "7/10";
+                        var nisanOncesiOran618619620 = "5/10";
+                        var martOncesiDonem = "202101202103";
+                        var martOncesi601 = "3/10";
+                        var martOncesi603609615 = "5/10";
+                        var martOncesi612613 = "7/10";
+                        var kasim22Donem = "202211";
+                        var kasim22DonemOncesi627 = "4/10";
+                        for (var i = 0; i < tblTevkifatUygula.rowCount; i++) {
+                            var dataLookup = tblTevkifatUygula.getData(i, 0);
+                            if (dataLookup != "") {
+                                var data = dataLookup.get("kod");
+                                //if (!data.equals("650")) 
+                                // "Didegil ise
+                                //{
+                                var tevOran = tblTevkifatUygula.getData(i, 3);
+                                if (tevOran != "") {
+                                    if ((data.equals("617") || data.equals("618") || data.equals("619") || data.equals("620"))) {
+                                        if (donemStr.compareTo("202004202004") < 0 && !tevOran.equals(nisanOncesiOran618619620)) {
+                                            parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiNisan/2020 dioran 5/10 olmal")
+                                            tblTevkifatUygula.focus();
+                                            tblTevkifatUygula.selectedRow = i;
+                                            tblTevkifatUygula.selectedColumn = 3;
+                                            return false;
+                                        }
+                                        if (donemStr.compareTo("202004202004") >= 0 && !tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(nisanOncesiOran618619620)) {
+                                            parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini desiniz.");
+                                            tblTevkifatUygula.focus();
+                                            tblTevkifatUygula.selectedRow = i;
+                                            tblTevkifatUygula.selectedColumn = 3;
+                                            return false;
+                                        }
+                                    }
+                                    else if (data.equals("601")) {
+                                        if (donemStr.compareTo(martOncesiDonem) == 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(martOncesi601)) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiMart/2021 dioran 3/10 ve ya 4/10 olmal")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    else if ((data.equals("603") || data.equals("609") || data.equals("615"))) {
+                                        if (donemStr.compareTo(martOncesiDonem) == 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(martOncesi603609615)) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiMart/2021 dioran 5/10 ve ya 7/10 olmal")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    else if (data.equals("612") || data.equals("613")) {
+                                        if (donemStr.compareTo(martOncesiDonem) == 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(martOncesi612613)) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiMart/2021 dioran 7/10 ve ya 9/10 olmal")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    else if (data.equals("627")) {
+                                        var baslangicDonem = donemStr.substring(0, 6);
+                                        var bitisDonem = donemStr.substring(6, 12);
+                                        if (baslangicDonem.compareTo(kasim22Donem) >= 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiKassonrasdi5/10 olmal")
+                                                tblTevkifatUygula.focus();
+                                                tblTevkifatUygula.selectedRow = i;
+                                                tblTevkifatUygula.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (bitisDonem.compareTo(kasim22Donem) >= 0) {
+                                                if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(kasim22DonemOncesi627)) {
+                                                    parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiKasba Kas sonrasbiten di4/10  ve ya 5/10 olmal")
+                                                    tblTevkifatUygula.focus();
+                                                    tblTevkifatUygula.selectedRow = i;
+                                                    tblTevkifatUygula.selectedColumn = 3;
+                                                    return false;
+                                                }
+                                            } else {
+                                                if (!tevOran.equals(kasim22DonemOncesi627)) {
+                                                    parent.msgBox("KTevkifat Uygulanan tablosu " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deiti Kas biten di4/10 olmal")
+                                                    tblTevkifatUygula.focus();
+                                                    tblTevkifatUygula.selectedRow = i;
+                                                    tblTevkifatUygula.selectedColumn = 3;
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (!dataLookup.get("oran").equals(tevOran)) {
+                                        parent.msgBox("KTevkifat Uygulanan tablosunda seTkarhatalTevkifat OrangirilmiLkontrol ediniz.");
+                                        tblTevkifatUygula.focus();
+                                        tblTevkifatUygula.selectedRow = i;
+                                        tblTevkifatUygula.selectedColumn = 3;
+                                        return false;
+                                    }
+                                }
+                                //}
+                            }
+                        }
+                        return true;
+                    } function tblTevkifatUygulaEk_dataChanged(event) {
+                        if (event.type == event.UPDATE) {
+                            if (event.column == 6) {
+                                if (tblTevkifatUygulaEk.getData(event.row, 6) != null) {
+                                    var dataLookup = tblTevkifatUygulaEk.getData(event.row, 6);
+                                    if (dataLookup != "") {
+                                        var data = dataLookup.get("kod");
+                                        if (!data.equals("650")) {
+                                            tblTevkifatUygulaEk.setData(event.row, 10, dataLookup.get("oran"))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } function kontrolTblTevkifatUygulaEk(parent) {
+                        for (var i = 0; i < tblTevkifatUygulaEk.rowCount; i++) {
+                            var tckn = tblTevkifatUygulaEk.getData(i, 0);
+                            var vkn = tblTevkifatUygulaEk.getData(i, 1);
+                            if (vkn.equals("") && tckn.equals("")) {
+                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda seT.C. Kimlik Numarasve Vergi Kimlik Numarasalanlarher ikisi birden bobkontrol ediniz.");
+                                tblTevkifatUygulaEk.selectedRow = i;
+                                tblTevkifatUygulaEk.selectedColumn = 0;
+                                return false;
+                            }
+                            if (!eb.tec(tblTevkifatUygulaEk, "KTevkifat UygulamasKapsamAit Bildirim", false, parent, new Array("0", "1", "4"), null))
+                                return false;
+                            //tarih kontrol
+                            var date = tblTevkifatUygulaEk.getData(i, 3);
+                            var ib = bdpp.Util.getIdariBilgiler(beanIdariBilgiler);
+                            var donem = ib.donem;
+                            var basBitTar = donem.getDisplayString("", "");
+                            var basTarYil = parseInt(basBitTar.substring(12, 16));
+                            var basTarAy = parseInt(basBitTar.substring(10, 12)); // bitiaybolmamasyeterlidir.
+                            var dateIntAy = parseInt(date.substring(2, 4));
+                            var dateIntYil = parseInt(date.substring(4, 8));
+                            if (!bdpp.Util.isDateValid(date)) {
+                                var msg = "Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satyer alan " + "SatFaturasve Benzeri Belgenin Tarihi";
+                                msg += "& gebir tarih de"
+                                parent.msgBox(msg);
+                                tblTevkifatUygulaEk.focus();
+                                tblTevkifatUygulaEk.selectedRow = i;
+                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                return false;
+                            }
+                            if (dateIntYil != basTarYil) {
+                                var msg = "Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satyer alan " + "SatFaturasve Benzeri Belgenin Tarihi";
+                                msg += "& beyannamenin gybya da kolamaz";
+                                parent.msgBox(msg);
+                                tblTevkifatUygulaEk.focus();
+                                tblTevkifatUygulaEk.selectedRow = i;
+                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                return false;
+                            }
+                            // tarih kontrolsonu
+                            var dataLookup = tblTevkifatUygulaEk.getData(i, 6);
+                            var ib = bdpp.Util.getIdariBilgiler(beanIdariBilgiler);
+                            var donem = ib.donem;
+                            var donemStr = donem.toVedopDonem();
+                            //var kasimOncesiOran617618 = "7/10";
+                            var nisanOncesiOran618619620 = "5/10";
+                            var martOncesiDonem = "202101202103";
+                            var martOncesi601 = "3/10";
+                            var martOncesi603609615 = "5/10";
+                            var martOncesi612613 = "7/10";
+                            var kasim22Donem = "202211";
+                            var kasim22DonemOncesi627 = "4/10";
+                            if (dataLookup != "") {
+                                var data = dataLookup.get("kod");
+
+                                var tevOran = tblTevkifatUygulaEk.getData(i, 10);
+                                if (tevOran != "") {
+                                    if ((data.equals("617") || data.equals("618") || data.equals("619") || data.equals("620"))) {
+                                        if (donemStr.compareTo("202004202004") < 0 && !tevOran.equals(nisanOncesiOran618619620)) {
+                                            parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiNisan/2020 dioran 5/10 olmal")
+                                            tblTevkifatUygulaEk.focus();
+                                            tblTevkifatUygulaEk.selectedRow = i;
+                                            tblTevkifatUygulaEk.selectedColumn = 3;
+                                            return false;
+                                        }
+                                        if (donemStr.compareTo("202004202004") >= 0 && !tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(nisanOncesiOran618619620)) {
+                                            parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                            tblTevkifatUygulaEk.focus();
+                                            tblTevkifatUygulaEk.selectedRow = i;
+                                            tblTevkifatUygulaEk.selectedColumn = 3;
+                                            return false;
+                                        }
+                                    }
+                                    else if (data.equals("601")) {
+                                        if (donemStr.compareTo(martOncesiDonem) == 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(martOncesi601)) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiMart/2021 dioran 3/10 ve ya 4/10 olmal")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    else if ((data.equals("603") || data.equals("609") || data.equals("615"))) {
+                                        if (donemStr.compareTo(martOncesiDonem) == 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(martOncesi603609615)) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiMart/2021 dioran 5/10 ve ya 9/10 olmal")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    else if (data.equals("612") || data.equals("613")) {
+                                        if (donemStr.compareTo(martOncesiDonem) == 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(martOncesi612613)) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiMart/2021 dioran 7/10 ve ya 9/10 olmal")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini de")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 3;
+                                                return false;
+                                            }
+                                        }
+                                    }
+                                    else if (data.equals("627")) {
+                                        var baslangicDonem = donemStr.substring(0, 6);
+                                        var bitisDonem = donemStr.substring(6, 12);
+                                        if (baslangicDonem.compareTo(kasim22Donem) >= 0) {
+                                            if (!tevOran.equals(dataLookup.get("oran"))) {
+                                                parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiKassonrasdi5/10 olmal")
+                                                tblTevkifatUygulaEk.focus();
+                                                tblTevkifatUygulaEk.selectedRow = i;
+                                                tblTevkifatUygulaEk.selectedColumn = 10;
+                                                return false;
+                                            }
+                                        }
+                                        else {
+                                            if (bitisDonem.compareTo(kasim22Donem) >= 0) {
+                                                if (!tevOran.equals(dataLookup.get("oran")) && !tevOran.equals(kasim22DonemOncesi627)) {
+                                                    parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deitiKasba Kas sonrasbiten di4/10  ve ya 5/10 olmal")
+                                                    tblTevkifatUygulaEk.focus();
+                                                    tblTevkifatUygulaEk.selectedRow = i;
+                                                    tblTevkifatUygulaEk.selectedColumn = 10;
+                                                    return false;
+                                                }
+                                            } else {
+                                                if (!tevOran.equals(kasim22DonemOncesi627)) {
+                                                    parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda " + (i + 1) + ". satseTkarhatalTevkifat OrangirilmiLkontrol ediniz.&&satTevkifat Orankolonundan oran bilgisini deiti Kas biten di4/10 olmal")
+                                                    tblTevkifatUygulaEk.focus();
+                                                    tblTevkifatUygulaEk.selectedRow = i;
+                                                    tblTevkifatUygulaEk.selectedColumn = 10;
+                                                    return false;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else if (!dataLookup.get("oran").equals(tevOran)) {
+                                        parent.msgBox("Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda seTkarhatalTevkifat OrangirilmiLkontrol ediniz.");
+                                        tblTevkifatUygulaEk.focus();
+                                        tblTevkifatUygulaEk.selectedRow = i;
+                                        tblTevkifatUygulaEk.selectedColumn = 3;
+                                        return false;
+                                    }
+                                }
+
+                            }
+                        } return true;
+                    }
+                    function kontroltblTamTevkifatUygulaEk(parent) {
+                        var toplam = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblTamTevkifatUygulaEk, 9, 6, "802"));
+                        for (var i = 0; i < tblTamTevkifatUygulaEk.rowCount; i++) {
+                            var tckn = tblTamTevkifatUygulaEk.getData(i, 0);
+                            var vkn = tblTamTevkifatUygulaEk.getData(i, 1);
+                            if (vkn.equals("") && tckn.equals("")) {
+                                parent.msgBox("BaTam Tevkifat UygulamasKapsamAit Bildirim tablosunda seAlTC Kimlik Numarasve AlVergi Kimlik Numarasalanlarher ikisi birden bob&Lkontrol ediniz.");
+                                tblTamTevkifatUygulaEk.selectedRow = i;
+                                tblTamTevkifatUygulaEk.selectedColumn = 0;
+                                return false;
+                            }
+                            if (!eb.tec(tblTamTevkifatUygulaEk, "BaTam Tevkifat UygulamasKapsamAit Bildirim", false, parent, new Array("0", "4"), null))
+                                return false;
+                            //tarih kontrol
+                            var date = tblTamTevkifatUygulaEk.getData(i, 3);
+                            var ib = bdpp.Util.getIdariBilgiler(beanIdariBilgiler);
+                            var donem = ib.donem;
+                            var basBitTar = donem.getDisplayString("", "");
+                            var basTarYil = parseInt(basBitTar.substring(12, 16));
+                            var basTarAy = parseInt(basBitTar.substring(10, 12)); // bitiaybolmamasyeterlidir.
+                            var dateIntAy = parseInt(date.substring(2, 4));
+                            var dateIntYil = parseInt(date.substring(4, 8));
+                            if (!bdpp.Util.isDateValid(date)) {
+                                var msg = "BaTam Tevkifat UygulamasKapsamAit Bildirim tablosununun " + (i + 1) + ". satyer alan " + "Fatura ve Benzeri Belgenin Tarihi";
+                                msg += "& gebir tarih de"
+                                parent.msgBox(msg);
+                                tblTamTevkifatUygulaEk.focus();
+                                tblTamTevkifatUygulaEk.selectedRow = i;
+                                tblTamTevkifatUygulaEk.selectedColumn = 3;
+                                return false;
+                            }
+                            if (dateIntYil != basTarYil) {
+                                var msg = "BaTam Tevkifat UygulamasKapsamAit Bildirim" + " tablosununun " + (i + 1) + ". satyer alan " + "Fatura ve Benzeri Belgenin Tarihi";
+                                msg += "& beyannamenin gybya da kolamaz";
+                                parent.msgBox(msg);
+                                tblTamTevkifatUygulaEk.focus();
+                                tblTamTevkifatUygulaEk.selectedRow = i;
+                                tblTamTevkifatUygulaEk.selectedColumn = 3;
+                                return false;
+                            }
+                            // tarih kontrolsonu
+                        }
+                        return true;
+                    } function kontrolEkMatrahIslemTuru(parent) {
+                        // matrah kulakcigi istebatevkifat tablosu
+                        var matrahIslemTuruArr = new Array();
+                        var topMatrahVergiTutarlari = new Array();
+                        var matrahIslemTurleriSet = new java.util.HashSet();
+                        islemTuruToplamVergiArrayHazirla(tblTamTevkifatUygulanan, 0, 3, matrahIslemTuruArr, topMatrahVergiTutarlari, matrahIslemTurleriSet);
+                        // eklerde bulunan istebatevkifat tablosu
+                        var eklerIslemTuruArr = new Array();
+                        var topEklerVergiTutarlari = new Array();
+                        var eklerIslemTurleriSet = new java.util.HashSet();
+                        islemTuruToplamVergiArrayHazirla(tblTamTevkifatUygulaEk, 6, 9, eklerIslemTuruArr, topEklerVergiTutarlari, eklerIslemTurleriSet);
+                        if (matrahIslemTuruArr.length == eklerIslemTuruArr.length) {
+                            for (var i = 0; i < matrahIslemTuruArr.length; i++) {
+                                if (!eklerIslemTurleriSet.contains(matrahIslemTuruArr[i])) {
+                                    var msg = "Matrah kulakBaTam Tevkifat Uygulanan tablosunda seitne karEkler kulakBaTam Tevkifat UygulamasKapsamAit Bildirim tablosunda hatalitgirilmiLkontrol ediniz.";
+                                    parent.msgBox(msg);
+                                    tblTamTevkifatUygulanan.focus();
+                                    return false;
+                                } else {
+                                    var eklerVergi = bdpp.Util.bd(topEklerVergiTutarlari[matrahIslemTuruArr[i]]);
+                                    var matrahVergi = bdpp.Util.bd(topMatrahVergiTutarlari[matrahIslemTuruArr[i]]);
+                                    if (matrahVergi.compareTo(eklerVergi) != 0) {
+                                        var msg = "Matrah kulakBaTam Tevkifat Uygulanan tablosuna girilen " + matrahIslemTuruArr[i] + " itkodlu vergi toplamEkler kulakBaTam Tevkifat UygulamasKapsamAit Bildirim tablosunda aynitsahip vergiler toplamede"
+                                        parent.msgBox(msg);
+                                        tblTamTevkifatUygulanan.focus();
+                                        return false;
+                                    }
+                                }
+                            }
+                        } else {
+                            var msg = "Matrah kulakBaTam Tevkifat Uygulanan tablosunda seitne karEkler kulakBaTam Tevkifat UygulamasKapsamAit Bildirim tablosunda hatalitgirilmiLkontrol ediniz.";
+                            parent.msgBox(msg);
+                            tblTamTevkifatUygulanan.focus();
+                            return false;
+                        }
+                        return true;
+                    } function islemTuruToplamVergiArrayHazirla(tablo, islemTuruKolon, vergiKolon, islemTurleri, topVergiTutarlari, islemTurleriSet) {
+                        var i;
+                        for (i = 0; i < tablo.rowCount; i++) {
+                            var islemTurudata = tablo.getData(i, islemTuruKolon);
+                            var islemTuru = islemTurudata.get("kod");
+                            var vergiTutar = bdpp.Util.bd(tablo.getData(i, vergiKolon));
+                            if (!islemTurleriSet.contains(islemTuru)) {
+                                islemTurleri.push(islemTuru);
+                                islemTurleriSet.add(islemTuru);
+                                topVergiTutarlari[islemTuru] = vergiTutar;
+                            }
+                            else {
+                                topVergiTutarlari[islemTuru] = vergiTutar.add(bdpp.Util.bd(topVergiTutarlari[islemTuru]));
+                            }
+                        }
+                        return null;
+                    } function kontrolTblTevkifatUygulaTblTevkifatUygulaEkCross(parent) {
+                        var tevkifatArray = new Array();
+                        var ektekiMatrah = 0;
+                        var ektekiTevkifatTutari = 0;
+                        if (tblTevkifatUygula.rowCount > 0 && tblTevkifatUygulaEk.rowCount == 0) {
+                            var msg = "Matrah kulakKTevkifat Uygulanan tablosuna bilgi girilmiEkler kulakKTevkifat UygulamasKapsamAit Bildirim tablosuna da bilgi girilmelidir.";
+                            parent.msgBox(msg);
+                            tblTevkifatUygulaEk.focus();
+                            return false;
+                        }
+                        // version 35 -start
+                        if (tblTamTevkifatUygulanan.rowCount > 0 && tblTamTevkifatUygulaEk.rowCount == 0) {
+                            var msg = "Matrah kulakBaTam Tevkifat Uygulanan tablosuna bilgi girilmiEkler kulakBaTam Tevkifat UygulamasKapsamAit Bildirim tablosuna da bilgi girilmelidir.";
+                            parent.msgBox(msg);
+                            tblTamTevkifatUygulaEk.focus();
+                            return false;
+                        }
+                        if (tblTamTevkifatUygulanan.rowCount == 0 && tblTamTevkifatUygulaEk.rowCount > 0) {
+                            var msg = "Ekler kulakBaTam Tevkifat UygulamasKapsamAit Bildirim tablosuna bilgi girilmiMatrah kulakBaTam Tevkifat Uygulanan tablosuna da bilgi girilmelidir.";
+                            parent.msgBox(msg);
+                            tblTamTevkifatUygulanan.focus();
+                            return false;
+                        }
+                        // version 35 -end
+                        if (tblTevkifatUygula.rowCount == 0 && tblTevkifatUygulaEk.rowCount > 0) {
+                            var msg = "Ekler kulakKTevkifat Uygulamas KapsamAit Bildirim tablosuna bilgi girilmiMatrah kulakKTevkifat Uygulanan tablosuna da bilgi girilmelidir.";
+                            parent.msgBox(msg);
+                            tblTevkifatUygula.focus();
+                            return false;
+                        }
+                        for (var i = 0; i < tblTevkifatUygula.rowCount; i++) {
+                            var turKodu = tblTevkifatUygula.getData(i, 0).get("kod");
+                            var oran = tblTevkifatUygula.getData(i, 3);
+                            var matrah = bdpp.Util.bd(calculateFilteredTableColumnSum(tblTevkifatUygula, 1, 0, turKodu, 3, oran));
+                            var tevkifatTutari = bdpp.Util.bd(calculateFilteredTableColumnSum(tblTevkifatUygula, 4, 0, turKodu, 3, oran));
+                            ektekiMatrah = bdpp.Util.bd(getEkTutar(turKodu, oran, 7));
+                            ektekiTevkifatTutari = bdpp.Util.bd(getEkTutar(turKodu, oran, 11));
+                            if (ektekiMatrah == -1) // iyapkod, ekteki tabloda bulunamad
+                            {
+                                var msg = "Matrah kulakKTevkifat Uygulanan tablosunda girilen " + turKodu + " kodlu TEkler kulakKTevkifat UygulamasKapsamAit Bildirim tablosundaki Cinsi alanbulunamamya da Tevkifat oranlaruyubilgilerinizi kontrol ediniz.";
+                                parent.msgBox(msg);
+                                tblTevkifatUygulaEk.focus();
+                                return false;
+                            }
+                            else {
+                                if (matrah.compareTo(ektekiMatrah) != 0) {
+                                    var msg = "Matrah kulakKTevkifat Uygulanan tablosunda girilen " + turKodu + " Tkodlu Matrah'lartoplamEkler kulakKTevkifat UygulamasKapsamAit Bildirim tablosunda aynTsahip Matrah'lartoplamedebilgilerinizi kontrol ediniz.";
+                                    parent.msgBox(msg);
+                                    tblTevkifatUygulaEk.focus();
+                                    return false;
+                                }
+
+                            }
+                            for (var i = 0; i < tblTevkifatUygulaEk.rowCount; i++) {
+                                var turKodu = tblTevkifatUygulaEk.getData(i, 6).get("kod");
+                                var kodFound = isKodFound(turKodu);
+                                if (!kodFound) {
+                                    var msg = "Ekler kulakKTevkifat UygulamasKapsamAit Bildirim tablosundaki " + turKodu + " kodlu TMatrah kulakKTevkifat Uygulanan tablosunda Tbilgilerinde bulunamam.&Lbilgilerinizi kontrol ediniz.";
+                                    parent.msgBox(msg);
+                                    tblTevkifatUygulaEk.selectedRow = i;
+                                    tblTevkifatUygulaEk.selectedColumn = 6;
+                                    tblTevkifatUygulaEk.focus();
+                                    return false;
+                                }
+                            }
+                            return true;
+                        } function calculateFilteredTableColumnSum(table, columnIndex, column1ToFilter, filter1Value, column2ToFilter, filter2Value) {
+                            var indexTable;
+                            var sum = bdpp.Util.bd("0");
+                            for (indexTable = 0; indexTable < table.rowCount; indexTable++) {
+                                var filter1 = table.getData(indexTable, column1ToFilter);
+                                var filter1Kod = filter1.get("kod");
+                                var filter2 = table.getData(indexTable, column2ToFilter);
+                                var columnValue = table.getData(indexTable, columnIndex);
+                                if (filter1Kod.equals(filter1Value) && filter2.equals(filter2Value)) {
+                                    sum = sum.add(bdpp.Util.bd(columnValue));
+                                }//if
+                            }//for
+                            return sum;
+                        } function isKodFound(turKodu) {
+                            for (var i = 0; i < tblTevkifatUygula.rowCount; i++) {
+                                var kod = tblTevkifatUygula.getData(i, 0).get("kod");
+                                if (kod.equals(turKodu))
+                                    return true;
+                            }
+                            return false;
+                        } function getEkTutar(turKodu, oran, column) {
+                            var found = false;
+                            var tutar = bdpp.Util.bd("0");
+                            for (var i = 0; i < tblTevkifatUygulaEk.rowCount; i++) {
+                                if (tblTevkifatUygulaEk.getData(i, 6).get("kod").equals(turKodu) && tblTevkifatUygulaEk.getData(i, 10).equals(oran)) {
+                                    found = true;
+                                    tutar = tutar.add(bdpp.Util.bd(tblTevkifatUygulaEk.getData(i, column)));
+                                }
+                            }
+                            if (!found)
+                                return -1;
+                            return tutar;
+                        } function kontrolTblTeknolojiGelistirmeBolgeleri(parent) {
+                            if (!eb.tec(tblTeknolojiGelistirmeBolgeleri, "Teknoloji GeliBfalse", parent, null, null))
+                                return false;
+                            if (!isTabloyaKodGirilmismi(tblKismiIstisna, 0, "kod", "223") && tblTeknolojiGelistirmeBolgeleri.rowCount > 0) // cross check
+                            {
+                                parent.msgBox("KKapsamGiren tablosuna Tolarak Teknoloji gelibyapikaydgirilmemiise&" +
+                                    "Teknoloji GeliBeki doldurulamaz.");
+                                tblKismiIstisna.focus();
+                                return false;
+                            }
+                            return true;
+                        }
+
+                        function kontrolTblMakinaTechizatAl() {
+                            //if (!eb.tec(tblMakinaTechizatAl"YatTeBelgesi KapsamMakina ve TeAlBildirim", false, parent, null, null))//
+                            return false;
+                            var i = 0;
+                            for (i = 0; i < tblMakinaTechizatAl; i++) {
+                                var vkn = tblMakinaTechizatAl
+                                if (vkn.equals('1111111111')) {
+                                    if (tblMakinaTechizatAl != null && tblMakinaTechizatAl != '') {
+                                        var msg =
+                                            "YatTeBelgesi KapsamMakina ve TeAlBildirim tablosunda&" +
+                                            "'SatVergi Kimlik Numarasolarak '111-111-1111' girilmiise&" +
+                                            "'SatVergi Dairesi' bilgisi girilmemelidir.";
+                                        parent.msgBox(msg);
+                                        tblMakinaTechizatAl
+                                        tblMakinaTechizatAl = i;
+                                        tblMakinaTechizatAl = 1;
+                                        return false;
+                                    }
+                                    if (!eb.terc(tblMakinaTechizatAl, "YatTeBelgesi KapsamMakina ve TeAlBildirim", i, parent, new Array("1")))
+                                        return false
+                                }
+                                else {
+                                    if (!eb.terc(tblMakinaTechizatAl, "YatTeBelgesi KapsamMakina ve TeAlBildirim", i, parent, null))
+                                        return false;
+                                }
+                                var alisTarih = tblMakinaTechizatAl
+                                if (!bdpp.Util.isDateValid(alisTarih)) {
+                                    var msg =
+                                        "YatTeBelgesi KapsamMakina ve TeAlBildirim tablosunun&" +
+                                        (i + 1) + ". satgirdiAlFaturasTarihi bilgisi gebir tarih de"
+                                    parent.msgBox(msg);
+                                    tblMakinaTechizatAl
+                                    tblMakinaTechizatAl = i;
+                                    tblMakinaTechizatAl = 6;
+                                    return false;
+                                }
+                                var belgeTarih = tblMakinaTechizatAl
+                                if (!bdpp.Util.isDateValid(belgeTarih)) {
+                                    var msg =
+                                        "YatTeBelgesi KapsamMakina ve TeAlBildirim tablosunun&" +
+                                        (i + 1) + ". satgirdiYatTeBelgesinin Tarihi bilgisi gebir tarih de"
+                                    parent.msgBox(msg);
+                                    tblMakinaTechizatAl
+                                    tblMakinaTechizatAl = i;
+                                    tblMakinaTechizatAl = 8;
+                                    return false;
+                                }
+                            }
+                            return true;
+                        }
+
+                    } function kontrolTbl3065Istisna(parent) {
+                        var i = 0;
+                        for (i = 0; i < tbl3065Istisna.rowCount; i++) {
+                            var vkn = tbl3065Istisna.getData(i, 1);
+                            if (vkn.length() != 10 && vkn.length() != 11) {
+                                var msg =
+                                    "3065 SayKanun'un 13 / i Maddesindeki KapsamYapTeslimlere Bildirim tablosunun&" +
+                                    (i + 1) + ". satgirdiAlVergi Kimlik No / TC Kimlik No bilgisi gede"
+                                parent.msgBox(msg);
+                                tbl3065Istisna.focus();
+                                tbl3065Istisna.selectedRow = i;
+                                tbl3065Istisna.selectedColumn = 1;
+                                return false;
+                            }
+                            if (!eb.terc(tbl3065Istisna, "3065 SayKanun'un 13 / i Maddesindeki KapsamYapTeslimlere Bildirim", i, parent, new Array("3", "4"))) {
+                                return false;
+                            }
+                            var satisTarih = tbl3065Istisna.getData(i, 11); //01.04.2017'den beolmal
+                            if (!bdpp.Util.isDateValid(satisTarih)) {
+                                var msg =
+                                    "3065 SayKanun'un 13 / i Maddesindeki KapsamYapTeslimlere Bildirim tablosunun&" +
+                                    (i + 1) + ". satgirdiSatFaturasTarihi bilgisi gebir tarih de"
+                                parent.msgBox(msg);
+                                tbl3065Istisna.focus();
+                                tbl3065Istisna.selectedRow = i;
+                                tbl3065Istisna.selectedColumn = 11;
+                                return false;
+                            }
+                            var gun = satisTarih.substring(0, 2);
+                            var ay = satisTarih.substring(2, 4);
+                            var yil = satisTarih.substring(4);
+                            if (yil + ay + gun < "20170401") {
+                                var msg =
+                                    "3065 SayKanun'un 13 / i Maddesindeki KapsamYapTeslimlere Bildirim tablosunun&" +
+                                    (i + 1) + ". satgirdiSatFaturasTarihi bilgisi 01.04.2017 ve sonrasbir tarih olmal"
+                                parent.msgBox(msg);
+                                tbl3065Istisna.focus();
+                                tbl3065Istisna.selectedRow = i;
+                                tbl3065Istisna.selectedColumn = 11;
+                                return false;
+                            }
+                        }
+                        return true;
+                    }
+                } function kontrolTblDegersizBildirim(parent) {
+                    var toplamDegersizKDV = bdpp.Util.bd("0");
+                    for (var i = 0; i < tblDegersizBildirim.rowCount; i++) {
+                        if (!eb.terc(tblDegersizBildirim, "Ekler'de DeHale Gelen Alacaklara Bildirim", i, parent, new Array("3"))) {
+                            return false;
+                        }
+                        var today = getSistemTarihi();
+                        var todayGunAyYil = today.substring(6, 8) + today.substring(4, 6) + today.substring(0, 4);
+                        var vknTckn = tblDegersizBildirim.getData(i, 0);
+                        if (vknTckn.length() != 10 && vknTckn.length() != 11) {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satgirdiBorTC Kimlik / Vergi Kimlik Numarasbilgisi gede"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 0;
+                            return false;
+                        }
+                        var faturaTarih = tblDegersizBildirim.getData(i, 2);
+                        if (!bdpp.Util.isDateValid(faturaTarih)) {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satgirdiFatura ve Benzeri Belgenin Tarihi bilgisi gebir tarih de"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 2;
+                            return false;
+                        }
+                        if (bdpp.Util.isDateBefore(todayGunAyYil, faturaTarih)) {
+                            var msg = "Ekler'de Desiz Hale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satFatura ve Benzeri Belgenin Tarihi alanbugileri bir tarih girilemez.";
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 2;
+                            return false;
+                        }
+
+                        var degersizTarih = tblDegersizBildirim.getData(i, 7);
+                        if (!bdpp.Util.isDateValid(degersizTarih)) {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satgirdiDeHale GeldiTarih bilgisi gebir tarih de"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 7;
+                            return false;
+                        }
+                        if (bdpp.Util.isDateBefore(todayGunAyYil, degersizTarih)) {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satDeHale GeldiTarih alanbugileri bir tarih girilemez.";
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 7;
+                            return false;
+                        }
+                        var degersizYil = degersizTarih.substring(4);
+                        if (degersizYil < "2014") {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satDersiz Hale GeldiTarih alan2014'ten bir tarih girilemez.";
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 7;
+                            return false;
+                        }
+                        var degersizTutar = bdpp.Util.bd(tblDegersizBildirim.getData(i, 5));
+                        var degersizKDV = bdpp.Util.bd(tblDegersizBildirim.getData(i, 6));
+                        var maxKDV = degersizTutar.multiply(bdpp.Util.bd("0.18")).setScale(2, java.math.BigDecimal.ROUND_HALF_UP);
+                        if (degersizKDV.compareTo(maxKDV) > 0) {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosunun " + (i + 1) + ". satgirdiDeHale Gelen AlacaKDV'si, DeHale Gelen Alacak Tutar%18'ini ge"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            tblDegersizBildirim.selectedRow = i;
+                            tblDegersizBildirim.selectedColumn = 6;
+                            return false;
+                        }
+                        toplamDegersizKDV = toplamDegersizKDV.add(degersizKDV);
+                    }
+                    var toplamVergiIndirimler = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIndirimler, 1, 0, "111"));
+                    // indirimler tablosunda 111 kodlu satirlarin vergi toplami
+                    if (tblDegersizBildirim.rowCount > 0) {
+                        if (toplamVergiIndirimler.compareTo(bdpp.Util.bd("0")) == 0) {
+                            var msg = "Ekler'de DeHale Gelen Alacaklara Bildirim tablosu doldurulduysa, b111 kodlu satbulunmal"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            return false;
+                        }
+                        if (toplamVergiIndirimler.compareTo(toplamDegersizKDV) != 0) {
+                            var msg = "byer alan 111 koduna yazvergi ile Ekler'de DeHale Gelen Alacaklara Bildirim& tablosunda yer alan DeHale Gelen AlacaKDV'si toplameolmal"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            return false;
+                        }
+                    } else {
+                        if (toplamVergiIndirimler.compareTo(bdpp.Util.bd("0")) != 0) {
+                            var msg = "b111 kodlu satvarsa Ekler'de DeHale Gelen Alacaklara Bildirim tablosu doldurulmal"
+                            parent.msgBox(msg);
+                            tblDegersizBildirim.focus();
+                            return false;
+                        }
+                    }
+                    return true;
+                } function kontrolTblInd107Donem(parent) {
+                    var toplamInd107DonemKDV = bdpp.Util.bd("0");
+                    for (var i = 0; i < tblInd107Donem.rowCount; i++) {
+                        if (!eb.terc(tblInd107Donem, "Ekler'de 107 Kod NumaralSatAracKonusu YapKDV AlacaDi", parent, null)) {
+                            return false;
+                        }
+                        toplamInd107DonemKDV = toplamInd107DonemKDV.add(bdpp.Util.bd(tblInd107Donem.getData(i, 2)));
+                    }
+                    var toplamVergiIndirimler = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIndirimler, 1, 0, "107"));
+                    // indirimler tablosunda 107 kodlu satirlarin vergi toplami
+                    if (tblInd107Donem.rowCount > 0) {
+                        var rc = tblInd107Donem.rowCount;
+                        var toplamKdv107Indirim = bdpp.Util.bd("0");
+                        for (var i = 0; i < rc; i++)
+                            toplamKdv107Indirim = toplamKdv107Indirim.add(bdpp.Util.bd(tblInd107Donem.getData(i, 3)));
+                        if (toplamVergiIndirimler.compareTo(bdpp.Util.bd(toplamKdv107Indirim)) != 0) {
+                            var msg = 'kulak"107 kod numaralsatgirilen tutar", Ekler, 107 ve 111 Kodlu TBildirimler kulak"107 Kod NumaralSatAracKonusu YapKDV Tutarede'
+                            parent.msgBox(msg);
+                            tblInd107Donem.focus();
+                            return false;
+                        }
+                        if (toplamVergiIndirimler.compareTo(bdpp.Util.bd("0")) == 0) {
+                            var msg = "Ekler'de 107 Kod NumaralSatAracKonusu YapKDV AlacaDtablosu doldurulduysa &b107 kodlu satbulunmal"
+                            parent.msgBox(msg);
+                            tblInd107Donem.focus();
+                            return false;
+                        }
+                    } else {
+                        if (toplamVergiIndirimler.compareTo(bdpp.Util.bd("0")) != 0) {
+                            var msg = "b107 kodlu satvarsa Ekler'de 107 Kod NumaralSatAracKonusu YapKDV AlacaDtablosu doldurulmal"
+                            parent.msgBox(msg);
+                            tblInd107Donem.focus();
+                            return false;
+                        }
+                    }
+                    return true;
+                } function isTabloyaKodGirilmismi(table, kodIndex, kodDefNanme, kod) {
+                    var i = 0;
+                    for (i = 0; i < table.rowCount; i++) {
+                        if (table.getData(i, kodIndex).get(kodDefNanme).equals(kod)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                } function kontrolTblTevkifatUygulaTblDigerIstisnaCross(parent) {
+                    if (tblDigerIstisna.rowCount > 0 && tblTevkifatUygula.rowCount > 0) {
+                        if (!parent.confirm("KDV tevkifatdolayiade talep ediliyorsa ilgili ituygun tevkifat kodu ile iade istenmelidir.& Lkontrol ediniz. Euygun bir kod bulamazsanDise")) {
+                            tblTevkifatUygula.focus();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+                function ebIhracKaydTeslimBedeli_dataChanged(event) {
+                    ihracatDonemiIadeKdvHesapla();
+                } function ebKDVsizlerIcinOdenmeyenKDV_dataChanged(event) {
+                    ihracatDonemiIadeKdvHesapla();
+                    //iadeEdilecekYuklenilenVergiFark
+                    //sonrakiDonemeDevredenHesapla();
+                } function ebIndirimlerTop_dataChanged(event) {
+                    //ihracatDonemiIadeKdvHesapla();
+                    sonrakiDonemeDevredenHesapla();
+                } function ebToplamKDV_dataChanged(event) {
+                    sonrakiDonemeDevredenHesapla();
+                } function ebGerceklesmeyenTecilEdilemeyen_dataChanged(event) {
+                    //yuklenilenFarkHesapla();
+                    ihracatDonemiIadeKdvHesapla();
+                    //iadeEdilecekYuklenilenVergiFark
+                    sonrakiDonemeDevredenHesapla();
+                } function ebIhrDonemIadeKDV_dataChanged(event) {
+                    //yuklenilenFarkHesapla();
+                    iadeEdilecekYuklenilenVergiFark
+                    sonrakiDonemeDevredenHesapla();
+                } function ebYuklenilenKDV_dataChanged(event) {
+                    iadeEdilecekYuklenilenVergiFark
+                } function ebIadeKDV_dataChanged(event) {
+                    sonrakiDonemeDevredenHesapla();
+                } function ihracatDonemiIadeKdvHesapla() {
+                    var ihrkaytesbedeli = bdpp.Util.bd(ebIhracKaydTeslimBedeli.text);
+                    var odenmeyenKdv = bdpp.Util.bd(ebKDVsizlerIcinOdenmeyenKDV.text);
+                    var tecilEdilemeyen = bdpp.Util.bd(ebGerceklesmeyenTecilEdilemeyen.text);
+                    if (odenmeyenKdv.compareTo(sifir) > 0) {
+                        var aradeger = ihrkaytesbedeli.subtract(odenmeyenKdv).multiply(onsekiz).divide(yuz, 2, java.math.BigDecimal.ROUND_HALF_UP);
+                        if (aradeger.compareTo(tecilEdilemeyen) > 0)
+                            ebIhrDonemIadeKDV.text = tecilEdilemeyen.toString();
+                        else
+                            ebIhrDonemIadeKDV.text = aradeger.toString();
+                    }
+                    else {
+                        ebIhrDonemIadeKDV.text = tecilEdilemeyen.toString();
+                    }
+                }
+                function iadeEdilecekYuklenilenVergiFark() {
+                    var yuklenilenKdv =
+                        bdpp.Util.bd(ebYuklenilenKDV.text);
+                    var iadeEdilecekKdv = bdpp.Util.bd(ebIhrDonemIadeKDV.text);
+                    if (yuklenilenKdv.compareTo(sifir) > 0) {
+                        var fark = yuklenilenKdv.subtract(iadeEdilecekKdv);
+                        if (fark.compareTo(sifir) < 0) {
+                            fark = bdpp.Util.bd("0");
+                        }
+                        ebIndirimFark.text = fark.toString();
+                    }
+                    else {
+                        ebIndirimFark.text = "0";
+                    }
+                }
+                function sonrakiDonemeDevredenHesapla() {
+                    var topKdv = bdpp.Util.bd(ebToplamKDV.text);
+                    //A6
+                    var toplamIndirim = bdpp.Util.bd(ebIndirimlerTop.text);
+                    var farkTopIndirimTopKdv = toplamIndirim.subtract(topKdv);
+                    var iadeKdv = bdpp.Util.bd(eb.get("A21").value);
+                    //var tecilEdilecekKdv = bdpp.Util.bd(ebTecilEdckKDV.text); 
+                    //Sonuhesaplarindaki tecil
+                    var tecilEdilemeyen = bdpp.Util.bd(ebGerceklesmeyenTecilEdilemeyen.text);
+                    var ihrDonemIadeKdv = bdpp.Util.bd(ebIhrDonemIadeKDV.text);
+                    var iadeEdilebilir = bdpp.Util.bd(ebIadeEdilebilir.text);
+                    var iadeFark = iadeEdilebilir.subtract(iadeKdv);
+                    var odenmeyenKdv = bdpp.Util.bd(ebKDVsizlerIcinOdenmeyenKDV.text);
+                    var devredenKdv = sifir;
+                    if (farkTopIndirimTopKdv.compareTo(sifir) == -1) {
+                        devredenKdv = sifir;
+                    } else {
+                        if (farkTopIndirimTopKdv.subtract(iadeKdv).compareTo(sifir) == 1) {
+                            devredenKdv = farkTopIndirimTopKdv.subtract(iadeKdv);
+                        } else {
+                            devredenKdv = sifir;
+                        }
+                    }
+                    if (tecilEdilemeyen.compareTo(ihrDonemIadeKdv) > 0) {
+                        var ihracNedeniyleDevredenKDV = tecilEdilemeyen.subtract(ihrDonemIadeKdv);
+                        if (odenmeyenKdv.compareTo(sifir) > 0 && ihracNedeniyleDevredenKDV.compareTo(sifir) > 0 && iadeFark.compareTo(sifir) >= 0) {
+                            if (iadeFark.compareTo(bdpp.Util.bd(ihracNedeniyleDevredenKDV)) < 0) {
+                                ihracNedeniyleDevredenKDV = bdpp.Util.bd(ihracNedeniyleDevredenKDV).subtract(iadeFark);
+                                ebIadeKDV.text = iadeEdilebilir;
+                            }
+                            else if (iadeFark.compareTo(bdpp.Util.bd(ihracNedeniyleDevredenKDV)) >= 0) {
+                                ebIadeKDV.text = iadeKdv.add(bdpp.Util.bd(ihracNedeniyleDevredenKDV));
+                                ihracNedeniyleDevredenKDV = sifir;
+                            }
+                            devredenKdv = devredenKdv.add(ihracNedeniyleDevredenKDV);
+                        }
+                    }
+                    else {
+                        ebIadeKDV.text = iadeKdv;
+                    }
+                    ebDevredenKDV.text = devredenKdv.toString();
+                }
+                //eb.e2f("A22","(A7-A6) < 0 ? 0 : max((A7 - A6 - A21), 0)",ebDevredenKDV);
+                //A7: Toplam
+                //A6: Toplam KDV //A21: Edilmesi Gereken KDV (ebIadeKDV)}
+                /*
+                function yuklenilenFarkHesapla() 
+                {
+                    var indirimFark = sifir;
+                    if (tblIhrac.rowCount > 0) {
+                        var toplamYuklenilenOran1 = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIhrac, 4, 2, "1"));
+                        var toplamYuklenilenOran8 = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIhrac, 4, 2, "8"));
+                        var yuklenilenGenelToplam = toplamYuklenilenOran1.add(toplamYuklenilenOran8);
+                        if (yuklenilenGenelToplam.compareTo(sifir) == 1) {
+                            var toplamHesaplananOran1 = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIhrac, 3, 2, "1"));
+                            var toplamHesaplananOran8 = bdpp.Util.bd(eb.calculateFilteredTableColumnSum(tblIhrac, 3, 2, "8"));
+                            var hesaplananGenelToplam = toplamHesaplananOran1.add(toplamHesaplananOran8);
+                            var yuklenilenFarkHesaplanan = yuklenilenGenelToplam.subtract(hesaplananGenelToplam);
+                            if (yuklenilenFarkHesaplanan.compareTo(sifir) == 1) {
+                                var odenmeyenKdv = bdpp.Util.bd(ebKDVsizlerIcinOdenmeyenKDV.text);
+                                if (odenmeyenKdv.compareTo(sifir) == 1) {
+                                    var ihrDonemIadeKdv = bdpp.Util.bd(ebIhrDonemIadeKDV.text);
+                                    var tecilEdilemeyen = bdpp.Util.bd(ebGerceklesmeyenTecilEdilemeyen.text);
+                                    indirimFark = yuklenilenFarkHesaplanan.add(tecilEdilemeyen).subtract(ihrDonemIadeKdv);
+                                } else {
+                                    indirimFark = yuklenilenFarkHesaplanan;
+                                }
+                            }
+                        }
+                    }
+                    ebIndirimFark.text = indirimFark.compareTo(sifir) == 1 ? indirimFark.toString() : "0";
+                    //14. versiyondaki kontrol:
+                    //eb.tcs("TOP_IHRAC_YUKLENILEN",tblIhrac,4);
+                    //eb.tcs("TOP_IHRAC_HESAPLANAN",tblIhrac,3);
+                    //eb.e2f("INDIRIM_FARK","max (TOP_IHRAC_YUKLENILEN - TOP_IHRAC_HESAPLANAN, 0)",ebIndirimFark);}*/
+                function kontrolOdenmeyenKdv(parent) {
+                    var ihrDonemIadeKdv = bdpp.Util.bd(ebIhrDonemIadeKDV.text);
+                    var odenmeyenKdv = bdpp.Util.bd(ebKDVsizlerIcinOdenmeyenKDV.text);
+                    var ihrackaytestoplam = bdpp.Util.bd(ebIhracKaydTeslimBedeli.text);
+                    /*if (ihrDonemIadeKdv.compareTo(sifir) == 0 && odenmeyenKdv.compareTo(sifir) == 1) 
+                    {
+                    
+                    parent.msgBox("GerDEdilecek KDV desve YurtdKDV Temin Edilen Mallar KDV alansfarklbir degirilemez.");
+                    
+                    ebKDVsizlerIcinOdenmeyenKDV.focus();
+                    
+                    return false;
+                    }*/
+                    if (odenmeyenKdv.compareTo(ihrackaytestoplam) == 1) {
+                        parent.msgBox("Yurt ve Yurt DKDV Temin Edilen Mal Bedeli,&KaydTeslim Bedeli Toplambolamaz.");
+                        ebKDVsizlerIcinOdenmeyenKDV.focus();
+                        return false;
+                    }
+                    return true;
+                }
+                //20. versiyon ile eklenen  bakontrolTblBelgeBilgileri(parent)
+
+                var i = 0;
+                var tmp;
+                var teslimHizmetBedelAylik = bdpp.Util.bd(ebBedelTutari.text);
+                var toplamBelgesayisi = bdpp.Util.bd(0);
+                for (i = 0; i < tblBelgeBilgileri.rowCount; i++) {
+                    if (tblBelgeBilgileri.getData(i, 1) == "") {
+                        var msg = "Belge Bilgileri Tablosu " + (i + 1) + ". satSayalanbobBelge bilgisi yoksa sgirmelisiniz.";
+                        parent.msgBox(msg);
+                        tblBelgeBilgileri.focus();
+                        tblBelgeBilgileri.selectedRow = i;
+                        tblBelgeBilgileri.selectedColumn = 1;
+                        return false;
+                    }
+                    toplamBelgesayisi = toplamBelgesayisi.add(bdpp.Util.bd(tblBelgeBilgileri.getData(i, 1)));
+                }//for
+                if (teslimHizmetBedelAylik.compareTo(bdpp.Util.bd(0)) > 0) {
+                    if (toplamBelgesayisi.compareTo(bdpp.Util.bd(0)) == 0) {
+                        var msg = "Teslim ve Hizmetlerin KarTeEden Bedel (aylalandesfarklolduBilgileri Tablosu Sayalantoplamsbolmal   "
+                        parent.msgBox(msg);
+                        return false;
+                    }
+                }
+                else {
+                    if (toplamBelgesayisi.compareTo(bdpp.Util.bd(0)) != 0) {
+                        var msg = "Teslim ve Hizmetlerin KarTeEden Bedel (aylalandesolduBilgileri Tablosu Sayalantoplamsolmal"
+                        parent.msgBox(msg);
+                        return false;
+                    }
+                }
+
+                function saveBelgeBilgileri(indentBelgeBilgi) {
+                    var belgeBilgiStr = "";
+                    var found = false;
+                    if (tblBelgeBilgileri.rowCount > 0) {
+                        belgeBilgiStr += indentBelgeBilgi + "<belgeBilgileri>\\n";
+                        for (var indexBelge = 0; indexBelge < tblBelgeBilgileri.rowCount; indexBelge++) {
+                            if (tblBelgeBilgileri.getData(indexBelge, 1) != "" && tblBelgeBilgileri.getData(indexBelge, 1) != "0") {
+                                belgeBilgiStr += indentBelgeBilgi + "\<belgeBilgisi>\\n" + indentBelgeBilgi + "\\<belgeTuru>" + tblBelgeBilgileri.getData(indexBelge, 0).get("kod") + "</belgeTuru>\\n"
+                                    + indentBelgeBilgi + "\\<belgeSayisi>" + tblBelgeBilgileri.getData(indexBelge, 1) + "</belgeSayisi>\\n" + indentBelgeBilgi + "\</belgeBilgisi>\\n";
+                                found = true;
+                            }
+                        }
+                        belgeBilgiStr += indentBelgeBilgi + "</belgeBilgileri>\\n";
+                    }
+                    if (found) {
+                        return belgeBilgiStr;
+                    }
+                    return "";
+                }
+                function loadBelgeBilgileri(ozel) {
+                    var i = 0;
+                    var belgeBilgiTablo = xmlUtils.getElementsByTagName2(ozel, 'belgeBilgileri.belgeBilgisi');
+                    if (belgeBilgiTablo != null) {
+                        for (; i < belgeBilgiTablo.getLength(); i++) {
+                            var belgeBilgi = belgeBilgiTablo.item(i);
+                            var belgeTuru = xmlUtils.getChildNodeValue(belgeBilgi, "belgeTuru");
+                            var belgesayisi = xmlUtils.getChildNodeValue(belgeBilgi, "belgeSayisi");
+                            for (var j = 0; j < tblBelgeBilgileri.rowCount; j++) {
+                                if (belgeTuru.equals(tblBelgeBilgileri.getData(j, 0).get("kod"))) {
+                                    tblBelgeBilgileri.setData(j, 1, belgesayisi);
+                                }
+                            }
+                        }
+                    }
+                }
+                //20. versiyon ile eklene bitirfunction ebIadeEdilebilir_dataChanged(event)
+
+                sonrakiDonemeDevredenHesapla();
+                function kontrolTblTamKismiIstisna(parent) {
+                    var found212 = false;
+                    var found316 = false;
+                    var found212TK = false;
+                    var found316TK = false;
+                    var toplamKismi = bdpp.Util.bd("0");
+                    var toplamTam = bdpp.Util.bd("0");
+                    var toplamTK212 = bdpp.Util.bd("0");
+                    var toplamTK316 = bdpp.Util.bd("0");
+                    var uniqueKey = new java.util.HashSet();
+                    if (!eb.tec(tblTamVeKismiIstisna, "Tam ve KBildirim", false, parent, null, null))
+                        return false;
+                    for (var k = 0; k < tblKismiIstisna.rowCount; k++) {
+                        var kod = tblKismiIstisna.getData(k, 0).get("kod");
+                        var kismiTeslim = bdpp.Util.bd(tblKismiIstisna.getData(k, 1));
+                        if (kod == "212") {
+                            found212 = true;
+                            toplamKismi = toplamKismi.add(kismiTeslim);
+                        }
+                    }
+                    for (var l = 0; l < tblTamIstisna.rowCount; l++) {
+                        var kod = tblTamIstisna.getData(l, 0).get("kod");
+                        var tamTeslim = bdpp.Util.bd(tblTamIstisna.getData(l, 1));
+                        if (kod == "316") {
+                            found316 = true;
+                            toplamTam = toplamTam.add(tamTeslim);
+                        }
+                    }
+                    for (var i = 0; i < tblTamVeKismiIstisna.rowCount; i++) {
+                        var kod = tblTamVeKismiIstisna.getData(i, 0).get("kod");
+                        var bolge = tblTamVeKismiIstisna.getData(i, 1).get("kod");
+                        var belgeNo = tblTamVeKismiIstisna.getData(i, 2);
+                        var teslimBedeli = bdpp.Util.bd(tblTamVeKismiIstisna.getData(i, 3));
+                        var oran = tblTamVeKismiIstisna.getData(i, 4);
+                        var
+                            uniqueKontrol = kod + bolge + belgeNo + oran;
+                        if (kod == "212") {
+                            found212TK = true;
+                            toplamTK212 = toplamTK212.add(teslimBedeli);
+                        }
+                        if (kod == "316") {
+                            found316TK = true;
+                            toplamTK316 = toplamTK316.add(teslimBedeli);
+                        }
+                        if (!uniqueKey.contains(uniqueKontrol)) {
+                            uniqueKey.add(uniqueKontrol);
+                        }
+                        else {
+                            parent.msgBox("Ekler kulakyer alan Tam ve KBildirim tablosunda aynTBBelge No ve Tabi OlduOran bilgisi ikinci defa girilemez. ");
+                            tblTamVeKismiIstisna.selectedRow = i;
+                            tblTamVeKismiIstisna.focus();
+                            return false;
+                        }
+                    }
+                    if (found212 && !found212TK) {
+                        parent.msgBox("ve DiHakkDokulakyer alan KKapsamGiren tablosunda T'Serbest BVerilen Hizmetler' seEkler kulakyer alan Tam ve KBildirim tablosunda da T'Serbest BVerilen Hizmetler' se")
+                        tblTamVeKismiIstisna.focus();
+                        return false;
+                    }
+                    if (!found212 && found212TK) {
+                        parent.msgBox("Ekler kulakyer alan Tam ve KBildirim tablosunda T'Serbest BVerilen Hizmetler' seve DiHakkDon kulakyer alan KKapsamGiren tablosunda T'Serbest BVerilen Hizmetler' se")
+                        tblKismiIstisna.focus();
+                        return false;
+                    }
+                    if (found316 && !found316TK) {
+                        parent.msgBox("ve DiHakkDokulakyer alan Tam KapsamGiren tablosunda T'Serbest BMYapFason Hizmetler' seEkler kulakyer alan Tam ve KBildirim tablosunda da T'Serbest BMYapFason Hizmetler' se")
+                        tblTamVeKismiIstisna.focus();
+                        return false;
+                    }
+                    if (!found316 && found316TK) {
+                        parent.msgBox("Ekler kulakyer alan Tam ve KBildirim tablosunda T'Serbest BMYapFason Hizmetler' seve DiHakkDokulaka yer alan Tam KapsamGiren tablosunda da T'Serbest BMYapFason Hizmetler' se")
+                        tblTamIstisna.focus();
+                        return false;
+                    }
+                    if (!toplamKismi.equals(toplamTK212)) {
+                        parent.msgBox("ve DiHakkDokulakyer alan KKapsamGiren tablosunda T&'Serbest BVerilen Hizmetler' olan satTeslim ve Hizmet TutartoplamlarEkler kulakyer alan Tam ve KBildirim tablosunda T&'Serbest BVerilen Hizmetler' olan satTeslim Bedeli toplamlareolmal")
+                        tblTamVeKismiIstisna.focus();
+                        return false;
+                    }
+                    if (!toplamTam.equals(toplamTK316)) {
+                        parent.msgBox("ve DiHakkDokulakyer alan Tam KapsamGiren tablosunda T&'Serbest BMYapFason Hizmetler' olan satTeslim ve Hizmet TutartoplamlarEkler kulakyer alan Tam ve KBildirim tablosunda T&'Serbest BMYapFason Hizmetler' olan satTeslim Bedeli toplamlareolmal")
+                        tblTamVeKismiIstisna.focus();
+                        return false;
+                    }
+                    return true;
+                }
+                function kontrolTblYenilenmisCepTel(parent) {
+                    var foundoran1 = false;
+                    var ib = bdpp.Util.getIdariBilgiler(beanIdariBilgiler);
+                    var donem = ib.donem;
+                    var donemStr = donem.toVedopDonem();
+                    var basYilAy = donemStr.substring(0, 6);
+                    var bitYilAy = donemStr.substring(6, 12);
+                    if (!eb.tec(tblYenilenmisCepTel, "YenilenmiCep Telefonu SatBildirim", false, parent, null, null))
+                        return false;
+                    for (var k = 0; k < tblTevkifatUygulama.rowCount; k++) {
+                        var oran = tblTevkifatUygulama.getData(k, 1);
+                        if (oran == "1")
+                            foundoran1 = true;
+                    }
+                    if (!foundoran1 && tblYenilenmisCepTel.rowCount > 0) {
+                        parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda veri giriyapise, Matrah kulak'Tevkifat Uygulanmayan Tablosunda %1 oranseveri giriyap")
+                        tblYenilenmisCepTel.focus();
+                        return false;
+                    }
+                    for (var i = 0; i < tblYenilenmisCepTel.rowCount; i++) {
+                        var alisBelgeTur = tblYenilenmisCepTel.getData(i, 0).get("kod");
+                        var alisSeriNo = tblYenilenmisCepTel.getData(i, 2);
+                        var satisBelgeTur = tblYenilenmisCepTel.getData(i, 11).get("kod");
+                        var satisSeriNo = tblYenilenmisCepTel.getData(i, 13);
+                        var satisBelgeTarihiYilAy = tblYenilenmisCepTel.getData(i, 12).substring(4, 8) + tblYenilenmisCepTel.getData(i, 12).substring(2, 4);
+                        var alisBelgeTarihi = tblYenilenmisCepTel.getData(i, 1).substring(4, 8) + tblYenilenmisCepTel.getData(i, 1).substring(2, 4) + tblYenilenmisCepTel.getData(i, 1).substring(0, 2);
+                        var satisBelgeTarihi = tblYenilenmisCepTel.getData(i, 12).substring(4, 8) + tblYenilenmisCepTel.getData(i, 12).substring(2, 4) + tblYenilenmisCepTel.getData(i, 12).substring(0, 2);
+                        if (alisSeriNo.length() != 16) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".sat& AlBelgesinin Seri / SNo alan16 karakter veri girilmesi zorunludur.");
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 2;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if ((alisBelgeTur == "2" || alisBelgeTur == "3") && isNaN(alisSeriNo.substring(3, 16))) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".satAlBelgesinin TE -Fatura veya E-ArFatura se& AlBelgesinin Seri / SNo alan3 karakter alfan4 karakter ybilgisi ve 9 karakter sayolmak 16 karakter veri girilmesi zorunludur.");
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 2;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if (satisBelgeTarihiYilAy < basYilAy || satisBelgeTarihiYilAy > bitYilAy) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".satSatBelgesinin Tarihi beyanname diolmal")
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 12;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if (alisBelgeTarihi > satisBelgeTarihi) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".satAlBelge Tarihi alanSatBelge Tarihi alanbolmamal")
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 13;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if (satisSeriNo.length() != 16) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".sat& SatBelgesinin Seri / SNo alan16 karakter veri girilmesi zorunludur.");
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 13;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if ((satisBelgeTur == "1" || satisBelgeTur == "2") && isNaN(satisSeriNo.substring(3, 16))) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".satSatBelgesinin TE -Fatura veya E-ArFatura se& SatBelgesinin Seri / SNo alan3 karakter alfan4 karakter ybilgisi ve 9 karakter sayolmak 16 karakter veri girilmesi zorunludur.");
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 13;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if ((satisBelgeTur == "1" || satisBelgeTur == "2") && (satisSeriNo.substring(3, 7)) < 2021) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".satSatBelgesinin TE -Fatura veya E-ArFatura se&SatBelgesinin Seri / SNo alanybilgisi 2021 ykolmamal")
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 13;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                        if ((alisBelgeTur == "2" || alisBelgeTur == "3") && (satisBelgeTur == "1" || satisBelgeTur == "2") && (alisSeriNo.substring(3, 7)) > (satisSeriNo.substring(3, 7))) {
+                            parent.msgBox("Ekler kulakyer alan YenilenmiCep Telefonu SatBildirim tablosunda " + (i + 1) + ".satAlBelgesinin Seri / SNo alanybilgisi, SatBelgesinin Seri / SNo alanybilgisinden bolmamal")
+                            tblYenilenmisCepTel.selectedRow = i;
+                            tblYenilenmisCepTel.selectedColumn = 13;
+                            tblYenilenmisCepTel.focus();
+                            return false;
+                        }
+                    }
+                    return true;
+                }
